@@ -1,4 +1,4 @@
-import { Spinner,useToast } from "@chakra-ui/react";
+import { Box, Spinner, Stack, useToast } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import Content from "../../components/ContentCard";
 import { axiosInstance } from '../../components/Configs/api'
@@ -43,7 +43,7 @@ const HomePage = () => {
             <Content 
              username={val.user.username}
              location={val.location}
-             imageUrl={val.imgae_url}
+             imageUrl={val.image_url}
              likes={val.likes}
              caption={val.caption}
             />
@@ -56,9 +56,15 @@ const HomePage = () => {
     }, [])
         return (
              <Box>
-                 {isLoading ? <Spinner /> : null}
+                 <Stack alignItems={"center"}>
+                     {isLoading ? <Spinner /> : null}
+                 </Stack>
+                 <Stack mb={"-0.5"}>
+                     {renderContent()}
+                 </Stack>
              </Box>
         )
 }
 
 export default HomePage
+

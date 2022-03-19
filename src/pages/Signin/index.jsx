@@ -15,8 +15,8 @@ import {
   } from '@chakra-ui/react';
   import { useState } from 'react';
   import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
-  import { Link } from 'react-router-dom';
-  import './styles.css'
+  import Link from 'next/link'
+  
   
   export default function SignIn() {
     const [showPassword, setShowPassword] = useState(false);
@@ -79,7 +79,7 @@ import {
             </Stack>
             <Stack pt={6}>
                 <Text align={'center'}>
-                 Don't have an account? <Link to={"/signup"} className="signUp">Signup</Link>
+                 Don't have an account? <Link href={"/signup"} className="signUp">Signup</Link>
                 </Text>
               </Stack>
           </Box>

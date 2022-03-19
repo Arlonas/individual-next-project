@@ -8,14 +8,14 @@ import {
   Avatar,
   useColorModeValue,
   Image,
-  Icon
+  Icon,
 } from '@chakra-ui/react';
 import { FaRegHeart, FaRegComment } from "react-icons/fa";
 import { FiSend } from "react-icons/fi";
 
 const Content = ({username, location, caption, likes, imageUrl }) => {
   return (
-    <Center py={6}>
+    <Center py={6} mt={6}>
       <Box
         maxW={'445px'}
         w={'full'}
@@ -23,6 +23,7 @@ const Content = ({username, location, caption, likes, imageUrl }) => {
         boxShadow={'2xl'}
         rounded={'md'}
         p={6}
+        my={-6}
         overflow={'hidden'}>
           <Stack ml={-3} mt={-2} mb={1} direction={'row'} spacing={3} align={'center'}>
             <Avatar
@@ -35,22 +36,20 @@ const Content = ({username, location, caption, likes, imageUrl }) => {
             </Stack>
           </Stack>
         <Box
-          h={'290px'}
-          bg={'gray.100'}
           mx={-6}
           mb={4}
           pos={'relative'}>
           <Image
+            h={'290px'}
+            w={"100%"}
             layout={'fill'}
             src={
-              'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
+              imageUrl
             }
             />
         </Box>
-            <Stack mx={-3}  my={-3} display="row" alignItems="center">
+            <Stack my={-3} ml={-4} spacing={5} direction="row" alignItems="center">
               <Icon
-              ml={-1}
-              mr={3}  
               boxSize={5} 
               as={FaRegHeart}
               sx={{
@@ -59,7 +58,6 @@ const Content = ({username, location, caption, likes, imageUrl }) => {
                 }}}
               />
               <Icon 
-              ml={3}
               boxSize={5} 
               as={FaRegComment}
               sx={{
@@ -69,7 +67,6 @@ const Content = ({username, location, caption, likes, imageUrl }) => {
 
               />
               <Icon 
-              ml={3}
               boxSize={5} 
               as={FiSend}
               sx={{
@@ -78,22 +75,33 @@ const Content = ({username, location, caption, likes, imageUrl }) => {
                 }}}
               />
             </Stack>
-            <Stack mt={2}>
-              <Text ml={-4} fontWeight={"bold"}>{likes}</Text>
+            <Stack mt={4}>
+              <Text ml={-4} fontWeight={"bold"}>{likes} Likes</Text>
             </Stack>
-            <Box ml={-3}>
+            <Box ml={-4}>
             <Text display="inline" fontWeight={"bold"} mr={2}>
               {username}
             </Text>
             <Text display="inline">{caption}</Text>
             </Box>
-
       </Box>
     </Center>
   );
 }
 
+
 export default Content
+              
+                
+         
+         
+      
+        
+     
+   
+
+  
+
               
              
               
