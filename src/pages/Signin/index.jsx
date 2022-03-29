@@ -12,13 +12,83 @@ import {
   Text,
   useColorModeValue,
   Checkbox,
+  FormHelperText,
+  useToast,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import Link from "next/link";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import jsCookie from "js-cookie";
+import { axiosInstance } from "../../components/Configs/api";
+import { useDispatch } from "react-redux";
+
+import { useRouter } from "next/router";
+import { auth_types } from "../../redux/types/auth";
+
+
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
+  // tanya kakaknya kalo mau chech udh ke login ato blm dri mana
+  // sama kenapa di stringified
+
+  const dispatch = useDispatch();
+
+  const router = useRouter();
+
+  const toast = useToast();
+
+  const formik = useFormik({
+    initialValues: {
+      username: "",
+      password: "",
+    },
+
+    validationSchema: Yup.object().shape({
+      username: Yup.string().required("This field is required"),
+      password: Yup.string().required("This field is required"),
+    }),
+
+    validateOnChange: false,
+    onSubmit: async (values) => {
+      try {
+        const res = await axiosInstance.get("/users", {
+          params: {
+            username: values.username,
+            password: values.password,
+          },
+        });
+
+        if (!res.data.length) {
+          throw new Error("Username or password is wrong");
+        }
+
+        const userLoginData = res.data[0];
+        console.log(res.data[0])
+        const stringifiedUserLoginData = JSON.stringify(userLoginData);
+
+        jsCookie.set("user_data", stringifiedUserLoginData);
+        console.log(jsCookie)
+        // authproviderh
+
+        dispatch({
+          type: auth_types.LOGIN_USER,
+          payload: userLoginData,
+        });
+
+        router.push("/");
+      } catch (err) {
+        toast({
+          status: "error",
+          title: "Failed to Login",
+          description: err.message,
+          duration: 2000,
+        });
+      }
+    },
+  });
   return (
     <Flex
       minH={"100vh"}
@@ -41,14 +111,24 @@ export default function SignIn() {
           p={8}
         >
           <Stack spacing={4}>
-            <FormControl id="email">
-              <FormLabel>Email address</FormLabel>
-              <Input type="email" />
+            <FormControl isInvalid={formik.errors.username} id="username">
+              <FormLabel>Username</FormLabel>
+              <Input
+                onChange={(event) =>
+                  formik.setFieldValue("username", event.target.value)
+                }
+              />
+              <FormHelperText>{formik.errors.username}</FormHelperText>
             </FormControl>
-            <FormControl id="password">
+            <FormControl isInvalid={formik.errors.password} id="password">
               <FormLabel>Password</FormLabel>
               <InputGroup>
-                <Input type={showPassword ? "text" : "password"} />
+                <Input
+                  onChange={(event) =>
+                    formik.setFieldValue("password", event.target.value)
+                  }
+                  type={showPassword ? "text" : "password"}
+                />
                 <InputRightElement h={"full"}>
                   <Button
                     variant={"ghost"}
@@ -58,6 +138,7 @@ export default function SignIn() {
                   </Button>
                 </InputRightElement>
               </InputGroup>
+              <FormHelperText>{formik.errors.username}</FormHelperText>
             </FormControl>
             <Stack spacing={10}>
               <Stack
@@ -74,6 +155,7 @@ export default function SignIn() {
                 _hover={{
                   bg: "blue.500",
                 }}
+                onClick={formik.handleSubmit}
               >
                 Sign in
               </Button>

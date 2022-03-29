@@ -4,6 +4,18 @@ import Content from "../../components/ContentCard";
 import { axiosInstance } from '../../components/Configs/api'
 
 const HomePage = () => {
+// bikin content dulu aja jadi pas udh login bisa create bisa delete bisa edit 
+// create 
+    // The content should have the following data:
+    // 1. Media (image)
+    // 2. Caption
+    // 3. Created Date
+    // 4. Number of likes
+// Edit post caption 
+// delete post
+// userprofile 
+// comments like
+// <Avatar src={"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"} />
  const [isLoading, setIsLoading] = useState(false)
  const [content, setContent] = useState([])
 
@@ -46,6 +58,7 @@ const HomePage = () => {
              imageUrl={val.image_url}
              likes={val.likes}
              caption={val.caption}
+             profilePicture={val.user.profile_picture}
             />
           )
         })
