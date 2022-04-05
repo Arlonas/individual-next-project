@@ -29,6 +29,7 @@ import {
   Input,
   Textarea,
   FormHelperText,
+  useToast
 } from "@chakra-ui/react";
 import { MoonIcon, SunIcon, AddIcon } from "@chakra-ui/icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -39,15 +40,17 @@ import { React } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import moment from "moment";
-import { axiosInstance } from "../Configs/api";
-import HomePage from "../../pages/homepage/homepage";
+import api from "../../lib/api";
+import { useRouter } from "next/router";
 
-export default function Nav({ imageUrl }) {
+export default function Nav() {
   // ambil dari redux avatarnya nanti di masukin situ
   const { colorMode, toggleColorMode } = useColorMode();
-  const authSelector = useSelector(state => state.auth);
+  const authSelector = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const router = useRouter();
+  const toast = useToast()
 
   const signoutBtnHandler = () => {
     dispatch({
@@ -65,30 +68,28 @@ export default function Nav({ imageUrl }) {
 
     validationSchema: Yup.object().shape({
       location: Yup.string().required("This field is required"),
-      imageUrl: Yup.string()
-        .matches(
-          `/((https?):\/\/)?(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/`,
-          "Enter correct url!"
-        )
-        .required("This field is required"),
+      imageUrl: Yup.string().required("This field is required"),
       caption: Yup.string().required("This field is required"),
     }),
 
     validateOnChange: false,
     onSubmit: async (values) => {
+      console.log(values);
       try {
         let date = moment().format("MMMM Do YYYY, h:mm:ss a");
         const newPost = {
           userId: 1,
-          location: values.location,
+          location: protectedLocation(),
           date,
           image_url: values.imageUrl,
           likes: 0,
           caption: values.caption,
         };
 
-        await axiosInstance.post("/posts", newPost)
+        await api.post("/posts", newPost);
+        router.push("/");
       } catch (err) {
+        console.log(err)
         toast({
           status: "error",
           title: "Failed to upload post",
@@ -99,9 +100,20 @@ export default function Nav({ imageUrl }) {
     },
   });
 
+  const protectedLocation = () => {
+    const { values } = formik;
+    const text = values.location;
+    const [firstChar, ...restChar] = text.split("");
+    const firstCharUpperCased = firstChar.toUpperCase();
+     const joinrestChar = restChar.join("");
+    const restCharLowerCased = joinrestChar.toLowerCase();
+    const location = firstCharUpperCased + restCharLowerCased
+
+    return location
+  };
   return (
     <>
-      <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
+      <Box mb={3} bg={useColorModeValue("gray.100", "gray.900")} px={4}>
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
           <Link href={"/"}>
             <Box
@@ -179,7 +191,10 @@ export default function Nav({ imageUrl }) {
                         <Button
                           colorScheme="blue"
                           mr={3}
-                          onClick={formik.handleSubmit}
+                          onClick={() => {
+                            formik.handleSubmit();
+                            onClose();
+                          }}
                         >
                           Post
                         </Button>
@@ -211,12 +226,7 @@ export default function Nav({ imageUrl }) {
               {authSelector.id ? (
                 <Menu>
                   <MenuButton>
-                    <Avatar
-                      src={
-                        authSelector.profilePicture
-                        
-                      }
-                    />
+                    <Avatar src={authSelector.profilePicture} />
                   </MenuButton>
                   <MenuList>
                     <MenuItem>

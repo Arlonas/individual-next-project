@@ -21,13 +21,11 @@ import Link from "next/link";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import jsCookie from "js-cookie";
-import { axiosInstance } from "../../components/Configs/api";
+import api from "../../lib/api";
 import { useDispatch } from "react-redux";
 
 import { useRouter } from "next/router";
 import { auth_types } from "../../redux/types/auth";
-
-
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
@@ -54,7 +52,7 @@ export default function SignIn() {
     validateOnChange: false,
     onSubmit: async (values) => {
       try {
-        const res = await axiosInstance.get("/users", {
+        const res = await api.get("/users", {
           params: {
             username: values.username,
             password: values.password,
@@ -66,11 +64,11 @@ export default function SignIn() {
         }
 
         const userLoginData = res.data[0];
-        console.log(res.data[0])
+        console.log(res.data[0]);
         const stringifiedUserLoginData = JSON.stringify(userLoginData);
 
         jsCookie.set("user_data", stringifiedUserLoginData);
-        console.log(jsCookie)
+        console.log(jsCookie);
         // authproviderh
 
         dispatch({
