@@ -7,7 +7,7 @@ const AuthProvider = ({ children }) => {
     const dispatch = useDispatch()
 
     useEffect(() => {
-        const savedUserLoginData = jsCookie.get("user_data")
+        const savedUserLoginData = jsCookie.get("user_data_login")
 
         if(savedUserLoginData) {
             const parsedUserData = JSON.parse(savedUserLoginData)

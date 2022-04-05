@@ -44,7 +44,9 @@ import { useRouter } from "next/router";
 // id: nanoid
 // biar g ngedouble di databsenya
 // kalo mau sort pake api 
-// post blm bnr
+// fetchcontent dimasukin redux
+// pakeuserlogin di comment like share ama profile kalo user blmlogin
+// tanya kakaknya klao maufetch contetn dimasukin redux
 const Content = ({
   username,
   location,

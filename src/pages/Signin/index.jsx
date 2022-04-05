@@ -22,10 +22,11 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import jsCookie from "js-cookie";
 import api from "../../lib/api";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { useRouter } from "next/router";
 import { auth_types } from "../../redux/types/auth";
+import { userLogin } from "../../redux/actions/auth";
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
@@ -33,6 +34,8 @@ export default function SignIn() {
   // sama kenapa di stringified
 
   const dispatch = useDispatch();
+
+  const authSelector = useSelector((state) => state.auth)
 
   const router = useRouter();
 
@@ -52,29 +55,7 @@ export default function SignIn() {
     validateOnChange: false,
     onSubmit: async (values) => {
       try {
-        const res = await api.get("/users", {
-          params: {
-            username: values.username,
-            password: values.password,
-          },
-        });
-
-        if (!res.data.length) {
-          throw new Error("Username or password is wrong");
-        }
-
-        const userLoginData = res.data[0];
-        console.log(res.data[0]);
-        const stringifiedUserLoginData = JSON.stringify(userLoginData);
-
-        jsCookie.set("user_data", stringifiedUserLoginData);
-        console.log(jsCookie);
-        // authproviderh
-
-        dispatch({
-          type: auth_types.LOGIN_USER,
-          payload: userLoginData,
-        });
+        dispatch(userLogin(values))
 
         router.push("/");
       } catch (err) {
