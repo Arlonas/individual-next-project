@@ -30,9 +30,11 @@ import { useSelector } from "react-redux";
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import api from "../../lib/api"
+import api from "../../lib/api";
 import { useRouter } from "next/router";
+import Link from "next/link";
 // nanay userlogin sama userdata dipisah gimn
+// bikin resend verification
 // apa harus pake api
 // ambil id dari post pas render trs masukin ke edit ama delete post
 // nanya kakaknya delete postnya gimn
@@ -43,10 +45,13 @@ import { useRouter } from "next/router";
 // kalo mau pake nanoid itu
 // id: nanoid
 // biar g ngedouble di databsenya
-// kalo mau sort pake api 
-// fetchcontent dimasukin redux
+// kalo mau sort pake api
 // pakeuserlogin di comment like share ama profile kalo user blmlogin
 // tanya kakaknya klao maufetch contetn dimasukin redux
+// bikin detail post
+// kalo reset password itu dari frontend kasih patch forget password / token user tersebut
+// di backend kasih endpoint buat cari tokennya dan verify tokennya baru delete
+// endpoint itu sekali nembak ke api itu endpoint route ama controllernya
 const Content = ({
   username,
   location,
@@ -56,12 +61,20 @@ const Content = ({
   profilePicture,
   userId,
   PassingConfirmDeletePost,
-  postId
+  postId,
 }) => {
   const authSelector = useSelector((state) => state.auth);
-  const { isOpen: editIsOpen, onOpen: editOnOpen, onClose: editOnClose } = useDisclosure();
-  const { isOpen: deleteIsOpen, onOpen: deleteOnOpen, onClose: deleteOnClose } = useDisclosure();
-  const router = useRouter()
+  const {
+    isOpen: editIsOpen,
+    onOpen: editOnOpen,
+    onClose: editOnClose,
+  } = useDisclosure();
+  const {
+    isOpen: deleteIsOpen,
+    onOpen: deleteOnOpen,
+    onClose: deleteOnClose,
+  } = useDisclosure();
+  const router = useRouter();
 
   const formik = useFormik({
     initialValues: {
@@ -74,17 +87,16 @@ const Content = ({
 
     onSubmit: async (values) => {
       const editPost = {
-        caption: values.caption
-      }
+        caption: values.caption,
+      };
 
-      await api.patch(`/posts/${postId}`, editPost)
-   }
+      await api.patch(`/posts/${postId}`, editPost);
+    },
   });
 
   const rerouteToProfilePage = () => {
-    return router.push("/my-profile")
-  }
-
+    return router.push("/my-profile");
+  };
 
   return (
     <Center py={6} mt={8}>
@@ -107,7 +119,12 @@ const Content = ({
           align={"center"}
           justifyContent={"space-between"}
         >
-          <Stack onClick={rerouteToProfilePage} direction={"row"} spacing={1.5} align={"center"}>
+          <Stack
+            onClick={rerouteToProfilePage}
+            direction={"row"}
+            spacing={1.5}
+            align={"center"}
+          >
             <Avatar src={profilePicture} alt={"Author"} />
             <Stack direction={"column"} spacing={0} fontSize={"sm"}>
               <Text fontWeight={600}>{username}</Text>
@@ -126,12 +143,28 @@ const Content = ({
                   variant="outline"
                 />
                 <MenuList>
-                  <MenuItem>Detail Post</MenuItem>
+                  <Link href={`/detail-post/${postId}`}>
+                    <MenuItem>Detail Post</MenuItem>
+                  </Link>
                   <MenuItem onClick={editOnOpen}>Edit Post</MenuItem>
                   <MenuItem onClick={deleteOnOpen}>Delete Post</MenuItem>
                 </MenuList>
               </Menu>
-            ) : null}
+            ) : (
+              <Menu>
+                <MenuButton
+                  as={IconButton}
+                  aria-label="Options"
+                  icon={<HamburgerIcon />}
+                  variant="outline"
+                />
+                <MenuList>
+                  <Link href={`/detail-post/${postId}`}>
+                    <MenuItem>Detail Post</MenuItem>
+                  </Link>
+                </MenuList>
+              </Menu>
+            )}
           </Stack>
         </Stack>
         <Box mx={-6} mb={4} pos={"relative"}>
@@ -199,33 +232,35 @@ const Content = ({
           )}
           {deleteIsOpen ? (
             <>
-            <AlertDialog isOpen={deleteIsOpen} onClose={deleteOnClose}>
-              <AlertDialogOverlay>
-                <AlertDialogContent>
-                  <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                    Delete Post
-                  </AlertDialogHeader>
-    
-                  <AlertDialogBody>
-                    Are you sure? You can't undo this action afterwards.
-                  </AlertDialogBody>
-    
-                  <AlertDialogFooter>
-                    <Button onClick={deleteOnClose}>Cancel</Button>
-                    <Button colorScheme="red" onClick={() => {
-                      PassingConfirmDeletePost()
-                      deleteOnClose()
-                    }} ml={3}>
-                      Delete
-                    </Button>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialogOverlay>
-            </AlertDialog>
-          </>
-          ) : (
-            null
-          )}
+              <AlertDialog isOpen={deleteIsOpen} onClose={deleteOnClose}>
+                <AlertDialogOverlay>
+                  <AlertDialogContent>
+                    <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                      Delete Post
+                    </AlertDialogHeader>
+
+                    <AlertDialogBody>
+                      Are you sure? You can't undo this action afterwards.
+                    </AlertDialogBody>
+
+                    <AlertDialogFooter>
+                      <Button onClick={deleteOnClose}>Cancel</Button>
+                      <Button
+                        colorScheme="red"
+                        onClick={() => {
+                          PassingConfirmDeletePost();
+                          deleteOnClose();
+                        }}
+                        ml={3}
+                      >
+                        Delete
+                      </Button>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialogOverlay>
+              </AlertDialog>
+            </>
+          ) : null}
         </Box>
       </Box>
     </Center>

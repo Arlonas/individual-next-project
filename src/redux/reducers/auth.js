@@ -5,7 +5,6 @@ const init_state = {
   username: "",
   email: "",
   fullName: "",
-  profilePicture: ""
 };
 
 export const auth_reducer = (state = init_state, action) => {
@@ -15,12 +14,12 @@ export const auth_reducer = (state = init_state, action) => {
       username: action.payload.username,
       email: action.payload.email,
       fullName: action.payload.full_name,
-      profilePicture: action.payload.profile_picture,
       id: action.payload.id,
+      profilePicture: action.payload.profile_picture,
+      errorMsg: "",
     };
   } else if (action.type === auth_types.LOGOUT_USER) {
-      return init_state
+    return init_state;
   }
-
   return state;
 };

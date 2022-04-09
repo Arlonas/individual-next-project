@@ -42,6 +42,7 @@ import * as Yup from "yup";
 import moment from "moment";
 import api from "../../lib/api";
 import { useRouter } from "next/router";
+import { fetchContent } from "../../redux/actions/fetchContent";
 
 export default function Nav() {
   // ambil dari redux avatarnya nanti di masukin situ
@@ -87,6 +88,7 @@ export default function Nav() {
         };
 
         await api.post("/posts", newPost);
+        dispatch(fetchContent());
         router.push("/");
       } catch (err) {
         console.log(err)

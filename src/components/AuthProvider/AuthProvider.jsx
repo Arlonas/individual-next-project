@@ -1,6 +1,6 @@
 import { useDispatch } from "react-redux";
 import { auth_types } from "../../redux/types"; 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import jsCookie from "js-cookie";
 
 const AuthProvider = ({ children }) => {

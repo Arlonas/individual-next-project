@@ -15,7 +15,7 @@ import {
   FormHelperText,
   useToast,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import Link from "next/link";
 import { useFormik } from "formik";
@@ -35,7 +35,7 @@ export default function SignIn() {
 
   const dispatch = useDispatch();
 
-  const authSelector = useSelector((state) => state.auth)
+  const authSelector = useSelector((state) => state.auth);
 
   const router = useRouter();
 
@@ -55,7 +55,7 @@ export default function SignIn() {
     validateOnChange: false,
     onSubmit: async (values) => {
       try {
-        dispatch(userLogin(values))
+        dispatch(userLogin(values));
 
         router.push("/");
       } catch (err) {

@@ -1,1 +1,2 @@
-export * from "./auth"
+export * from "./fetchContent"
+export * from './auth'
