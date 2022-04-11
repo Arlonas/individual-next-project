@@ -52,6 +52,10 @@ import Link from "next/link";
 // kalo reset password itu dari frontend kasih patch forget password / token user tersebut
 // di backend kasih endpoint buat cari tokennya dan verify tokennya baru delete
 // endpoint itu sekali nembak ke api itu endpoint route ama controllernya
+// tanya kenapa id dari detail post g dpt
+// hrs disabled login buttonnya
+// kalo mau dapetin error dari backend err.response.data.message
+// kalo infinite scrol sebelum di tambahin itu dispread buat di timpa ama yg baru biar yang lama g ilang
 const Content = ({
   username,
   location,
@@ -120,12 +124,13 @@ const Content = ({
           justifyContent={"space-between"}
         >
           <Stack
-            onClick={rerouteToProfilePage}
             direction={"row"}
             spacing={1.5}
             align={"center"}
           >
-            <Avatar src={profilePicture} alt={"Author"} />
+            {userId == authSelector.id ? (
+              <Avatar onClick={rerouteToProfilePage} src={profilePicture} alt={"Author"} />
+            ) : <Avatar src={profilePicture} alt={"Author"} />}
             <Stack direction={"column"} spacing={0} fontSize={"sm"}>
               <Text fontWeight={600}>{username}</Text>
               <Text mr={-1} color={"gray.500"}>
@@ -134,7 +139,7 @@ const Content = ({
             </Stack>
           </Stack>
           <Stack>
-            {userId == authSelector.id ? (
+            {authSelector.id ? (
               <Menu>
                 <MenuButton
                   as={IconButton}
@@ -146,8 +151,12 @@ const Content = ({
                   <Link href={`/detail-post/${postId}`}>
                     <MenuItem>Detail Post</MenuItem>
                   </Link>
-                  <MenuItem onClick={editOnOpen}>Edit Post</MenuItem>
-                  <MenuItem onClick={deleteOnOpen}>Delete Post</MenuItem>
+                  {userId == authSelector.id ? (
+                    <>
+                      <MenuItem onClick={editOnOpen}>Edit Post</MenuItem>
+                      <MenuItem onClick={deleteOnOpen}>Delete Post</MenuItem>
+                    </>
+                  ) : null}
                 </MenuList>
               </Menu>
             ) : (

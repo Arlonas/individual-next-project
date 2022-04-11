@@ -15,23 +15,18 @@ import {
   FormHelperText,
   useToast,
 } from "@chakra-ui/react";
-import { useCallback, useState } from "react";
+import { useEffect, useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import Link from "next/link";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import jsCookie from "js-cookie";
-import api from "../../lib/api";
 import { useDispatch, useSelector } from "react-redux";
 
 import { useRouter } from "next/router";
-import { auth_types } from "../../redux/types/auth";
 import { userLogin } from "../../redux/actions/auth";
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
-  // tanya kakaknya kalo mau chech udh ke login ato blm dri mana
-  // sama kenapa di stringified
 
   const dispatch = useDispatch();
 
@@ -54,20 +49,19 @@ export default function SignIn() {
 
     validateOnChange: false,
     onSubmit: async (values) => {
-      try {
-        dispatch(userLogin(values));
-
-        router.push("/");
-      } catch (err) {
-        toast({
-          status: "error",
-          title: "Failed to Login",
-          description: err.message,
-          duration: 2000,
-        });
-      }
+      dispatch(userLogin(values));
     },
   });
+
+  useEffect(() => {
+    if(authSelector.errorMessage) {
+      toast({
+        status: "error",
+        title: "Login failed",
+        description: authSelector.errorMessage
+      })
+    }
+  }, [authSelector.errorMessage])
   return (
     <Flex
       minH={"100vh"}

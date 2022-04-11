@@ -31,6 +31,11 @@ export const userLogin = (values) => {
       });
     } catch (err) {
       console.log(err);
+
+      dispatch({
+        type: auth_types.AUTH_ERROR,
+        payload: err.message
+      })
     }
   };
 };

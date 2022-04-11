@@ -1,21 +1,27 @@
-import { Avatar, Box, Center, Icon, Text } from "@chakra-ui/react";
+import { Avatar, Box, Center, Icon, Image, Stack, Text, useColorModeValue } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import api from "../../lib/api";
+import { FaRegHeart, FaRegComment } from "react-icons/fa";
+import { FiSend } from "react-icons/fi";
  const DetailPost = () => {
   const router = useRouter();
   const [content, setContent] = useState({});
-  const postId = router.query.id;
-  const fetchContent = () => {
-    const res = api.get(`/posts/${postId}`, {
+  const { id } = router.query;
+
+  const fetchContent = async () => {
+    const res = await api.get(`/posts/${id}`, {
       params: {
         _expand: "user",
       },
     });
+
+    // console.log(res.data)
     setContent(res.data);
   };
   useEffect(() => {
     if (router.isReady) {
+      console.log(id)
       fetchContent();
     }
   }, [router.isReady]);
@@ -50,17 +56,17 @@ import api from "../../lib/api";
             spacing={1.5}
             align={"center"}
           >
-            <Avatar src={content.user.profile_picture} alt={"Author"} />
+            <Avatar src={content?.user?.profile_picture} alt={"Author"} />
             <Stack direction={"column"} spacing={0} fontSize={"sm"}>
-              <Text fontWeight={600}>{username}</Text>
+              <Text fontWeight={600}>{content?.user?.username}</Text>
               <Text mr={-1} color={"gray.500"}>
-                {content.location}
+                {content?.location}
               </Text>
             </Stack>
           </Stack>
         </Stack>
         <Box mx={-6} mb={4} pos={"relative"}>
-          <Image h={"290px"} w={"100%"} layout={"fill"} src={imageUrl} />
+          <Image h={"290px"} w={"100%"} layout={"fill"} src={content?.image_url} />
         </Box>
         <Stack direction={"row"} justifyContent={"space-between"}>
           <Stack
@@ -99,19 +105,19 @@ import api from "../../lib/api";
             />
           </Stack>
           <Stack>
-            <Text>{content.date}</Text>
+            <Text>{content?.date}</Text>
           </Stack>
         </Stack>
         <Stack mt={4}>
           <Text ml={-4} fontWeight={"bold"}>
-            {content.likes} Likes
+            {content?.likes} Likes
           </Text>
         </Stack>
         <Box ml={-4}>
           <Text display="inline" fontWeight={"bold"} mr={2}>
-            {content.username}
+            {content?.user?.username}
           </Text>
-          <Text display="inline">{content.caption}</Text>
+          <Text display="inline">{content?.caption}</Text>
         </Box>
       </Box>
     </Center>
