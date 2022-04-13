@@ -48,7 +48,6 @@ import Link from "next/link";
 // kalo mau sort pake api
 // pakeuserlogin di comment like share ama profile kalo user blmlogin
 // tanya kakaknya klao maufetch contetn dimasukin redux
-// bikin detail post
 // kalo reset password itu dari frontend kasih patch forget password / token user tersebut
 // di backend kasih endpoint buat cari tokennya dan verify tokennya baru delete
 // endpoint itu sekali nembak ke api itu endpoint route ama controllernya
@@ -56,6 +55,11 @@ import Link from "next/link";
 // hrs disabled login buttonnya
 // kalo mau dapetin error dari backend err.response.data.message
 // kalo infinite scrol sebelum di tambahin itu dispread buat di timpa ama yg baru biar yang lama g ilang
+// kalo comment tuh ambil created at itu dari database kalo mau compare baru di moment().utc()
+// kalo mau kasih liat liked post dari user ambil datanya dari table like
+// di detail post hrs ada 5 most recent comments
+// nanya kakanya protected page gimn ama requires auth
+// masukin protected page server side untuk my profile
 const Content = ({
   username,
   location,

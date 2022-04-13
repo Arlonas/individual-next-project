@@ -24,6 +24,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { useRouter } from "next/router";
 import { userLogin } from "../../redux/actions/auth";
+import { useRequiresAuth } from "../../lib/hooks/useRequiresAuth";
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
@@ -31,6 +32,7 @@ export default function SignIn() {
   const dispatch = useDispatch();
 
   const authSelector = useSelector((state) => state.auth);
+  const networkSelector = useSelector((state) => state.network);
 
   const router = useRouter();
 
@@ -48,20 +50,14 @@ export default function SignIn() {
     }),
 
     validateOnChange: false,
-    onSubmit: async (values) => {
-      dispatch(userLogin(values));
+    onSubmit: (values) => {
+      setTimeout(() => {
+        dispatch(userLogin(values, formik.setSubmitting));
+      }, 2000);
     },
   });
 
-  useEffect(() => {
-    if(authSelector.errorMessage) {
-      toast({
-        status: "error",
-        title: "Login failed",
-        description: authSelector.errorMessage
-      })
-    }
-  }, [authSelector.errorMessage])
+  useRequiresAuth()
   return (
     <Flex
       minH={"100vh"}
@@ -129,6 +125,7 @@ export default function SignIn() {
                   bg: "blue.500",
                 }}
                 onClick={formik.handleSubmit}
+                disabled={formik.isSubmitting}
               >
                 Sign in
               </Button>

@@ -1,9 +1,8 @@
-import { useToast } from "@chakra-ui/react";
 import jsCookie from "js-cookie";
 import api from "../../lib/api";
-import { auth_types } from "../types";
+import { auth_types, network_types } from "../types";
 
-export const userLogin = (values) => {
+export const userLogin = (values, setSubmitting) => {
   return async (dispatch) => {
     try {
       const res = await api.get("/users", {
@@ -29,13 +28,20 @@ export const userLogin = (values) => {
         type: auth_types.LOGIN_USER,
         payload: userData,
       });
+      
+      setSubmitting(false)
     } catch (err) {
       console.log(err);
 
       dispatch({
-        type: auth_types.AUTH_ERROR,
-        payload: err.message
+        type: network_types.NETWORK_ERROR,
+        payload: {
+          title: "Login Failed",
+          description: err.message
+        }
       })
+
+      setSubmitting(false)
     }
   };
 };
