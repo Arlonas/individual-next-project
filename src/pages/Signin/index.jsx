@@ -31,13 +31,6 @@ export default function SignIn() {
 
   const dispatch = useDispatch();
 
-  const authSelector = useSelector((state) => state.auth);
-  const networkSelector = useSelector((state) => state.network);
-
-  const router = useRouter();
-
-  const toast = useToast();
-
   const formik = useFormik({
     initialValues: {
       username: "",
