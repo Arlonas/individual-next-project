@@ -57,7 +57,7 @@ export default function Nav() {
     dispatch({
       type: auth_types.LOGOUT_USER,
     });
-    jsCookie.remove("user_data");
+    jsCookie.remove("auth_token");
   };
 
   const formik = useFormik({

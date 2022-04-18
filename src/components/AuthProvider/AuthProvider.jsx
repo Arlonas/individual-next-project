@@ -2,19 +2,26 @@ import { useDispatch } from "react-redux";
 import { auth_types } from "../../redux/types"; 
 import { useEffect } from "react";
 import jsCookie from "js-cookie";
+import axiosInstance from "../../lib/api";
 
 const AuthProvider = ({ children }) => {
     const dispatch = useDispatch()
 
-    useEffect(() => {
-        const savedUserLoginData = jsCookie.get("user_data_login")
+    useEffect(async () => {
+        const userToken = jsCookie.get("auth_token")
 
-        if(savedUserLoginData) {
-            const parsedUserData = JSON.parse(savedUserLoginData)
+        if(userToken) {
+           const userResponse = await axiosInstance.get("/auth/refresh-token", {
+               headers: {
+                   authorization: userToken
+               }
+           })
+
+           jsCookie.set("auth_token", userResponse.data.result.token)
 
             dispatch({
                 type: auth_types.LOGIN_USER,
-                payload: parsedUserData,
+                payload: userResponse.data.result.user,
             })
         }
     }, [])

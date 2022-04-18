@@ -2,7 +2,7 @@ import { network_types } from "../types"
 
 const init_state = {
     errorMessage: "",
-    errorTitle
+    errorTitle: ""
 }
 
 export const network_reducer = (state = init_state, action) => {

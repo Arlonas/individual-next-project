@@ -5,25 +5,15 @@ import { auth_types, network_types } from "../types";
 export const userLogin = (values, setSubmitting) => {
   return async (dispatch) => {
     try {
-      const res = await api.get("/users", {
-        params: {
-          username: values.username,
-        },
+      const res = await api.post("/auth/signin", {
+        username: values.username,
+        password: values.password
       });
 
-      if (!res.data.length) {
-        throw new Error("User not found");
-      }
+      const userSignInResponse = res.data.result
 
-      if (res.data[0].password !== values.password) {
-        throw new Error("Wrong password");
-      }
-
-      const userData = res.data[0];
-      const stringifiedUserData = JSON.stringify(userData);
-
-      jsCookie.set("user_data_login", stringifiedUserData);
-
+      jsCookie.set("auth_token", userSignInResponse)
+      
       dispatch({
         type: auth_types.LOGIN_USER,
         payload: userData,

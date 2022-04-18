@@ -59,7 +59,11 @@ import Link from "next/link";
 // kalo mau kasih liat liked post dari user ambil datanya dari table like
 // di detail post hrs ada 5 most recent comments
 // nanya kakanya protected page gimn ama requires auth
-// masukin protected page server side untuk my profile
+// kalo username or email it upake includes username.include(@) return true itu email kalo false username
+// kalo g pake regex cari di stackoverflow ada di bookmark
+// pake regex unutk email cari di stackoverflow
+// kalo mau kasih character hrs mix character itu pkae if ternary di form helper text
+// user ttp bisa login tp kasih button untuk resend verification
 const Content = ({
   username,
   location,

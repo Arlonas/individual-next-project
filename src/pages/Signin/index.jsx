@@ -24,7 +24,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { useRouter } from "next/router";
 import { userLogin } from "../../redux/actions/auth";
-import { useRequiresAuth } from "../../lib/hooks/useRequiresAuth";
+import requiresAuth from "../../lib/hoc/requiresAuth";
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
@@ -155,3 +155,11 @@ export default function SignIn() {
     </Flex>
   );
 }
+export const getServerSideProps = requiresAuth((context) => {
+  const userData = context.req.cookies.user_data_login;
+  return {
+    props: {
+      user: userData,
+    },
+  };
+});
