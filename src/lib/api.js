@@ -4,7 +4,7 @@ import store from "../redux/store"
 import { auth_types, network_types } from "../redux/types"
 
 const axiosInstance = axios.create({
-    baseURL: "http://localhost:2000"
+    baseURL: "http://localhost:2020"
 })
 
 

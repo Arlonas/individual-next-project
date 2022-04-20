@@ -13,23 +13,23 @@ import {
   useColorModeValue,
   Checkbox,
   FormHelperText,
-  useToast,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import Link from "next/link";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useDispatch, useSelector } from "react-redux";
-
-import { useRouter } from "next/router";
+import { useDispatch } from "react-redux";
 import { userLogin } from "../../redux/actions/auth";
-import requiresAuth from "../../lib/hoc/requiresAuth";
+import { useRequiresAuth } from "../../lib/hooks/useRequiresAuth";
+import { useRouter } from "next/router"
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
 
   const dispatch = useDispatch();
+
+  const router = useRouter()
 
   const formik = useFormik({
     initialValues: {
@@ -47,6 +47,7 @@ export default function SignIn() {
       setTimeout(() => {
         dispatch(userLogin(values, formik.setSubmitting));
       }, 2000);
+      router.push("/")
     },
   });
 
@@ -148,11 +149,3 @@ export default function SignIn() {
     </Flex>
   );
 }
-export const getServerSideProps = requiresAuth((context) => {
-  const userData = context.req.cookies.user_data_login;
-  return {
-    props: {
-      user: userData,
-    },
-  };
-});

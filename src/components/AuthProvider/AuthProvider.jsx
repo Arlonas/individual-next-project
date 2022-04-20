@@ -16,12 +16,13 @@ const AuthProvider = ({ children }) => {
                    authorization: userToken
                }
            })
+        //   console.log(userResponse, "hellooooo")
 
-           jsCookie.set("auth_token", userResponse.data.result.token)
+           jsCookie.set("auth_token", userResponse?.data?.result?.token)
 
             dispatch({
                 type: auth_types.LOGIN_USER,
-                payload: userResponse.data.result.user,
+                payload: userResponse?.data?.result?.user,
             })
         }
     }, [])

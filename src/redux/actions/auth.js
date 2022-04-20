@@ -10,13 +10,14 @@ export const userLogin = (values, setSubmitting) => {
         password: values.password
       });
 
-      const userSignInResponse = res.data.result
+      const userSignInResponse = res.data?.result?.user
+      // console.log(res.data.result)
 
-      jsCookie.set("auth_token", userSignInResponse)
+      jsCookie.set("auth_token", res.data?.result?.token)
       
       dispatch({
         type: auth_types.LOGIN_USER,
-        payload: userData,
+        payload: userSignInResponse,
       });
       
       setSubmitting(false)
@@ -27,7 +28,7 @@ export const userLogin = (values, setSubmitting) => {
         type: network_types.NETWORK_ERROR,
         payload: {
           title: "Login Failed",
-          description: err.message
+          description: err?.response?.data?.message
         }
       })
 

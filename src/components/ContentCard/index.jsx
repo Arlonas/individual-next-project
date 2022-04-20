@@ -64,6 +64,7 @@ import Link from "next/link";
 // pake regex unutk email cari di stackoverflow
 // kalo mau kasih character hrs mix character itu pkae if ternary di form helper text
 // user ttp bisa login tp kasih button untuk resend verification
+// tombol verification di user profile
 const Content = ({
   username,
   location,
@@ -102,7 +103,7 @@ const Content = ({
         caption: values.caption,
       };
 
-      await api.patch(`/posts/${postId}`, editPost);
+      await api.patch(`/post/${postId}`, editPost);
     },
   });
 

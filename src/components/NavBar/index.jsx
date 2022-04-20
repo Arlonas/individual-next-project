@@ -29,29 +29,33 @@ import {
   Input,
   Textarea,
   FormHelperText,
-  useToast
+  useToast,
 } from "@chakra-ui/react";
 import { MoonIcon, SunIcon, AddIcon } from "@chakra-ui/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { IoMdLogOut, IoMdSettings } from "react-icons/io";
 import { auth_types } from "../../redux/types/auth";
 import jsCookie from "js-cookie";
-import { React } from "react";
+import { React, useEffect } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import moment from "moment";
 import api from "../../lib/api";
 import { useRouter } from "next/router";
 import { fetchContent } from "../../redux/actions/fetchContent";
+import { useRef } from "react";
 
 export default function Nav() {
   // ambil dari redux avatarnya nanti di masukin situ
   const { colorMode, toggleColorMode } = useColorMode();
   const authSelector = useSelector((state) => state.auth);
+  const [selectedFile, setSelectedFile] = useState(null);
+  console.log(authSelector);
   const dispatch = useDispatch();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
-  const toast = useToast()
+  const toast = useToast();
+  const inputFileRef = useRef();
 
   const signoutBtnHandler = () => {
     dispatch({
@@ -63,13 +67,11 @@ export default function Nav() {
   const formik = useFormik({
     initialValues: {
       location: "",
-      imageUrl: "",
       caption: "",
     },
 
     validationSchema: Yup.object().shape({
       location: Yup.string().required("This field is required"),
-      imageUrl: Yup.string().required("This field is required"),
       caption: Yup.string().required("This field is required"),
     }),
 
@@ -77,21 +79,34 @@ export default function Nav() {
     onSubmit: async (values) => {
       console.log(values);
       try {
+        if (!selectedFile) {
+          toast({
+            status: "error",
+            title: "Failed to upload content",
+            description: "U have not chose a file",
+            duration: 2000,
+          });
+          return;
+        }
         let date = moment().format("MMMM Do YYYY, h:mm:ss a");
-        const newPost = {
-          userId: 1,
-          location: protectedLocation(),
-          date,
-          image_url: values.imageUrl,
-          likes: 0,
-          caption: values.caption,
-        };
+        const formData = new FormData();
+        const likes = 0;
 
-        await api.post("/posts", newPost);
+        formData.append("caption", values.caption);
+        formData.append("user_id", authSelector.id);
+        formData.append("post_image_file", selectedFile);
+        formData.append("date", date);
+        formData.append("likes", likes);
+        formData.append("location", protectedLocation());
+
+        await api.post("/posts", formData);
+        setSelectedFile(null);
+        formik.setFieldValue("caption", "");
+        formik.setFieldValue("location", "");
         dispatch(fetchContent());
         router.push("/");
       } catch (err) {
-        console.log(err)
+        console.log(err);
         toast({
           status: "error",
           title: "Failed to upload post",
@@ -107,11 +122,15 @@ export default function Nav() {
     const text = values.location;
     const [firstChar, ...restChar] = text.split("");
     const firstCharUpperCased = firstChar.toUpperCase();
-     const joinrestChar = restChar.join("");
+    const joinrestChar = restChar.join("");
     const restCharLowerCased = joinrestChar.toLowerCase();
-    const location = firstCharUpperCased + restCharLowerCased
+    const location = firstCharUpperCased + restCharLowerCased;
 
-    return location
+    return location;
+  };
+
+  const handleFile = (event) => {
+    setSelectedFile(event.target.files[0]);
   };
   return (
     <>
@@ -140,9 +159,32 @@ export default function Nav() {
                       <ModalHeader>Create your account</ModalHeader>
                       <ModalCloseButton />
                       <ModalBody pb={6}>
-                        <FormControl isInvalid={formik.errors.location}>
+                        <FormControl>
+                          <FormLabel>ImageUrl</FormLabel>
+                          <Input
+                            placeholder="url"
+                            onChange={handleFile}
+                            ref={inputFileRef}
+                            display={"none"}
+                            type={"file"}
+                            accept={"image/png, image/jpeg"}
+                            multiple={false}
+                          />
+                          <Button
+                            onClick={() => inputFileRef.current.click()}
+                            colorScheme={"#32b280"}
+                          >
+                            Choose File
+                          </Button>
+                          {/* <FormHelperText>
+                            {formik.errors.location}
+                          </FormHelperText> */}
+                        </FormControl>
+
+                        <FormControl mt={4} isInvalid={formik.errors.location}>
                           <FormLabel>Location</FormLabel>
                           <Input
+                            value={formik.values.location}
                             placeholder="location"
                             onChange={(event) =>
                               formik.setFieldValue(
@@ -156,25 +198,10 @@ export default function Nav() {
                           </FormHelperText>
                         </FormControl>
 
-                        <FormControl mt={4} isInvalid={formik.errors.imageUrl}>
-                          <FormLabel>ImageUrl</FormLabel>
-                          <Input
-                            placeholder="url"
-                            onChange={(event) =>
-                              formik.setFieldValue(
-                                "imageUrl",
-                                event.target.value
-                              )
-                            }
-                          />
-                          <FormHelperText>
-                            {formik.errors.imageUrl}
-                          </FormHelperText>
-                        </FormControl>
-
                         <FormControl mt={4} isInvalid={formik.errors.caption}>
                           <FormLabel>Caption</FormLabel>
                           <Textarea
+                            value={formik.values.caption}
                             placeholder="caption here"
                             onChange={(event) =>
                               formik.setFieldValue(
@@ -245,7 +272,7 @@ export default function Nav() {
                     display={{ base: "none", md: "inline-flex" }}
                     fontSize={"sm"}
                     fontWeight={600}
-                    color={"white"}
+                    color={"#32b280"}
                     bg={"pink.400"}
                     _hover={{
                       bg: "pink.300",
