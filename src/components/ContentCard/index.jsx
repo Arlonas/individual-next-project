@@ -186,7 +186,7 @@ const Content = ({
           </Stack>
         </Stack>
         <Box mx={-6} mb={4} pos={"relative"}>
-          <Image h={"290px"} w={"100%"} layout={"fill"} src={imageUrl} />
+          <Image h={"290px"} w={"100%"} layout={"fill"} src={imageUrl} objectFit={"fill"} />
         </Box>
         <Stack my={-3} ml={-4} spacing={5} direction="row" alignItems="center">
           <Icon

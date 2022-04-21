@@ -14,17 +14,18 @@ import {
   Checkbox,
   FormHelperText,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import Link from "next/link";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { userLogin } from "../../redux/actions/auth";
 import { useRequiresAuth } from "../../lib/hooks/useRequiresAuth";
 import { useRouter } from "next/router"
 
 export default function SignIn() {
+  const authSelector = useSelector((state) => state.auth)
   const [showPassword, setShowPassword] = useState(false);
 
   const dispatch = useDispatch();

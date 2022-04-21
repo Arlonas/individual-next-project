@@ -4,16 +4,18 @@ import { content_types, network_types } from "../types";
 export const fetchContent = () => {
   return async (dispatch) => {
     try {
-      const res = await api.get("/posts", {
+      const res = await api.get("/post", {
         params: {
-          _limit: 5,
-          _page: 1
+          // _limit: 5,
+          // _page: 1,
+          _sortBy: "createdAt",
+          _sortDir: "DESC"
         },
       });
       // kalo mau like bikin like dislike di tablenya pake boolean
       // res.data.result kalo mau ambil data dari backend
       const contentList = res?.data?.result?.rows
-      console.log(contentList)
+      // console.log(contentList)
       dispatch({
         type: content_types.FETCH_CONTENT,
         payload: contentList

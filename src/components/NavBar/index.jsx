@@ -36,7 +36,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { IoMdLogOut, IoMdSettings } from "react-icons/io";
 import { auth_types } from "../../redux/types/auth";
 import jsCookie from "js-cookie";
-import { React, useEffect } from "react";
+import { React, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import moment from "moment";
@@ -50,7 +50,7 @@ export default function Nav() {
   const { colorMode, toggleColorMode } = useColorMode();
   const authSelector = useSelector((state) => state.auth);
   const [selectedFile, setSelectedFile] = useState(null);
-  console.log(authSelector);
+  // console.log(authSelector);
   const dispatch = useDispatch();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
@@ -77,7 +77,7 @@ export default function Nav() {
 
     validateOnChange: false,
     onSubmit: async (values) => {
-      console.log(values);
+      // console.log(selectedFile);
       try {
         if (!selectedFile) {
           toast({
@@ -96,14 +96,16 @@ export default function Nav() {
         formData.append("user_id", authSelector.id);
         formData.append("post_image_file", selectedFile);
         formData.append("date", date);
-        formData.append("likes", likes);
+        formData.append("like_count", likes);
         formData.append("location", protectedLocation());
 
-        await api.post("/posts", formData);
+        await api.post("/post", formData);
         setSelectedFile(null);
         formik.setFieldValue("caption", "");
         formik.setFieldValue("location", "");
-        dispatch(fetchContent());
+        setTimeout(() => {
+          dispatch(fetchContent());
+        }, 2000);
         router.push("/");
       } catch (err) {
         console.log(err);
@@ -172,7 +174,7 @@ export default function Nav() {
                           />
                           <Button
                             onClick={() => inputFileRef.current.click()}
-                            colorScheme={"#32b280"}
+                            color={"#32b280"}
                           >
                             Choose File
                           </Button>
@@ -272,10 +274,10 @@ export default function Nav() {
                     display={{ base: "none", md: "inline-flex" }}
                     fontSize={"sm"}
                     fontWeight={600}
-                    color={"#32b280"}
-                    bg={"pink.400"}
+                    color={"white"}
+                    bg={"#32b280"}
                     _hover={{
-                      bg: "pink.300",
+                      bg: "green.400",
                     }}
                   >
                     Sign Up

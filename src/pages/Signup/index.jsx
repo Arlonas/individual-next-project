@@ -23,6 +23,7 @@ import { useDispatch } from "react-redux";
 import api from "../../lib/api";
 import { useRouter } from "next/router";
 import { network_types } from "../../redux/types";
+import { useRequiresAuth } from "../../lib/hooks/useRequiresAuth";
 // dibackend lgsng res.redirect aja ke signin page
 
 export default function Signup() {
@@ -32,7 +33,7 @@ export default function Signup() {
 
   const toast = useToast();
 
-  const router = useRouter()
+  const router = useRouter();
 
   const formik = useFormik({
     initialValues: {
@@ -46,60 +47,58 @@ export default function Signup() {
       email: Yup.string()
         .required("This field is required")
         .email("Field should contain a valid e-mail"),
-      password: Yup.string()
-        .required("This field is required")
-        // .matches(
-        //   /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
-        //   "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and one special case Character"
-        // ),
+      password: Yup.string().required("This field is required"),
+      // .matches(
+      //   /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
+      //   "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and one special case Character"
+      // ),
     }),
 
     validateOnChange: false,
     onSubmit: async (values) => {
-      
-        try {
-          const res = await api.post("/auth/signup", {
-            username: values.username,
-            email: values.email,
-            password: values.password,
-          });
-          // console.log(res?.statusText)
-          toast({
-            title: "Account created.",
-            description: "We've created your account for you.",
-            status: "success",
-            duration: 2000,
-            position: "top-right",
-          });
+      try {
+        const res = await api.post("/auth/signup", {
+          username: values.username,
+          email: values.email,
+          password: values.password,
+        });
+        // console.log(res?.statusText)
+        toast({
+          title: "Account created.",
+          description: "We've created your account for you.",
+          status: "success",
+          duration: 2000,
+          position: "top-right",
+        });
 
-          formik.setSubmitting(false)
-          router.push("/signin");
-        } catch (err) {
-          console.log(err);
-          // untuk mengetahui apakah usernamenya taken ato engga
-          if (
-            err?.response?.data?.message == "Username or Email has been taken"
-          ) {
-            formik.setFieldError("username", "This username has been taken");
-          }
-          if (
-            err?.response?.data?.message == "Username or Email has been taken"
-          ) {
-            formik.setFieldError("email", "This email address has been taken");
-          }
-          dispatch({
-            type: network_types.NETWORK_ERROR,
-            payload: {
-              title: "Registration Failed",
-              description: err?.response?.data?.message,
-            },
-          });
-          formik.setSubmitting(false)
+        formik.setSubmitting(false);
+        router.push("/signin");
+      } catch (err) {
+        console.log(err);
+        // untuk mengetahui apakah usernamenya taken ato engga
+        if (
+          err?.response?.data?.message == "Username or Email has been taken"
+        ) {
+          formik.setFieldError("username", "This username has been taken");
         }
-      
+        if (
+          err?.response?.data?.message == "Username or Email has been taken"
+        ) {
+          formik.setFieldError("email", "This email address has been taken");
+        }
+        dispatch({
+          type: network_types.NETWORK_ERROR,
+          payload: {
+            title: "Registration Failed",
+            description: err?.response?.data?.message,
+          },
+        });
+        formik.setSubmitting(false);
+      }
     },
   });
 
+  useRequiresAuth();
   return (
     <Flex
       minH={"100vh"}

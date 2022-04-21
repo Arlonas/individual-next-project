@@ -30,24 +30,24 @@ const HomePage = () => {
 
     setTimeout(() => {
       dispatch(contentList());
-      console.log(contentList());
+      // console.log(contentList());
       setIsLoading(false)
     }, 2000);
   };
-  console.log(contentSelector.contentList)
+  // console.log(contentSelector.contentList)
   const renderContent = () => {
-    return contentSelector.contentList.map((val) => {
+    return contentSelector?.contentList?.map((val) => {
       return (
         <Content
-          username={val.user.username}
-          location={val.location}
-          imageUrl={val.image_url}
-          likes={val.likes}
-          caption={val.caption}
-          profilePicture={val.user.profile_picture}
-          userId={val.userId}
+          username={val?.User?.username}
+          location={val?.location}
+          imageUrl={val?.image_url}
+          likes={val?.like_count}
+          caption={val?.caption}
+          // profilePicture={val.user.profile_picture}
+          userId={val?.user_id}
           PassingConfirmDeletePost={() => confirmDeletePost(val.id)}
-          postId={val.id}
+          postId={val?.id}
         />
       );
     });
@@ -60,7 +60,7 @@ const HomePage = () => {
   const confirmDeletePost = async (id) => {
     let text = `Are u sure?  You want to delete this post `;
     if (confirm(text)) {
-      await api.delete(`/posts/${id}`);
+      await api.delete(`/post/${id}`);
       fetchContent();
     }
     router.push("/");
@@ -68,7 +68,7 @@ const HomePage = () => {
   return (
     <Box>
       <Stack alignItems={"center"}>{isLoading ? <Spinner /> : null}</Stack>
-      {/* {renderContent()} */}
+      {renderContent()}
     </Box>
   );
 };

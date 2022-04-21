@@ -21,7 +21,7 @@ import { FiSend } from "react-icons/fi";
   };
   useEffect(() => {
     if (router.isReady) {
-      console.log(id)
+      // console.log(id)
       fetchContent();
     }
   }, [router.isReady]);
