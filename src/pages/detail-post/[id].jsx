@@ -1,11 +1,20 @@
-import { Avatar, Box, Center, Icon, Image, Stack, Text, useColorModeValue } from "@chakra-ui/react";
+import {
+  Avatar,
+  Box,
+  Center,
+  Icon,
+  Image,
+  Stack,
+  Text,
+  useColorModeValue,
+} from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import api from "../../lib/api";
 import { FaRegHeart, FaRegComment } from "react-icons/fa";
 import { FiSend } from "react-icons/fi";
-import moment from "moment"
- const DetailPost = () => {
+import moment from "moment";
+const DetailPost = () => {
   const router = useRouter();
   const [content, setContent] = useState({});
   const { id } = router.query;
@@ -63,11 +72,12 @@ import moment from "moment"
           </Stack>
         </Stack>
         <Box mx={-6} mb={4} pos={"relative"}>
-          <Image 
-          h={{ base: "100%", sm: "400px", lg: "400px" }}
-          w={"100%"}
-          objectFit={"contain"}
-          src={content?.image_url} />
+          <Image
+            h={{ base: "100%", sm: "400px", lg: "400px" }}
+            w={"100%"}
+            objectFit={"contain"}
+            src={content?.image_url}
+          />
         </Box>
         <Stack direction={"row"} justifyContent={"space-between"}>
           <Stack
@@ -106,7 +116,9 @@ import moment from "moment"
             />
           </Stack>
           <Stack>
-            <Text fontSize={"10px"}color={"gray.500"}>{moment(content?.createdAt).format('MMMM Do YYYY')}</Text>
+            <Text fontSize={"10px"} color={"gray.500"}>
+              {moment(content?.createdAt).format("MMMM Do YYYY")}
+            </Text>
           </Stack>
         </Stack>
         <Stack mt={4}>
@@ -125,4 +137,4 @@ import moment from "moment"
   );
 };
 
-export default DetailPost
+export default DetailPost;
