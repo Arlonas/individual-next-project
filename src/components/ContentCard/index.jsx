@@ -26,13 +26,15 @@ import {
 } from "@chakra-ui/react";
 import { FaRegHeart, FaRegComment } from "react-icons/fa";
 import { FiSend } from "react-icons/fi";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import api from "../../lib/api";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { fetchContent } from "../../redux/actions/fetchContent"
+import { useEffect } from "react";
 // nanay userlogin sama userdata dipisah gimn
 // bikin resend verification
 // apa harus pake api
@@ -88,6 +90,7 @@ const Content = ({
     onClose: deleteOnClose,
   } = useDisclosure();
   const router = useRouter();
+  const dispatch = useDispatch()
 
   const formik = useFormik({
     initialValues: {
@@ -102,8 +105,13 @@ const Content = ({
       const editPost = {
         caption: values.caption,
       };
+      console.log(editPost);
 
       await api.patch(`/post/${postId}`, editPost);
+      editOnClose()
+      dispatch(fetchContent())
+     
+      router.push("/")
     },
   });
 
@@ -132,14 +140,16 @@ const Content = ({
           align={"center"}
           justifyContent={"space-between"}
         >
-          <Stack
-            direction={"row"}
-            spacing={1.5}
-            align={"center"}
-          >
+          <Stack direction={"row"} spacing={1.5} align={"center"}>
             {userId == authSelector.id ? (
-              <Avatar onClick={rerouteToProfilePage} src={profilePicture} alt={"Author"} />
-            ) : <Avatar src={profilePicture} alt={"Author"} />}
+              <Avatar
+                onClick={rerouteToProfilePage}
+                src={profilePicture}
+                alt={"Author"}
+              />
+            ) : (
+              <Avatar src={profilePicture} alt={"Author"} />
+            )}
             <Stack direction={"column"} spacing={0} fontSize={"sm"}>
               <Text fontWeight={600}>{username}</Text>
               <Text mr={-1} color={"gray.500"}>
@@ -186,7 +196,12 @@ const Content = ({
           </Stack>
         </Stack>
         <Box mx={-6} mb={4} pos={"relative"}>
-          <Image h={"290px"} w={"100%"} layout={"fill"} src={imageUrl} objectFit={"fill"} />
+          <Image
+            h={{ base: "100%", sm: "400px", lg: "400px" }}
+            w={"100%"}
+            objectFit={"contain"}
+            src={imageUrl}
+          />
         </Box>
         <Stack my={-3} ml={-4} spacing={5} direction="row" alignItems="center">
           <Icon
@@ -237,7 +252,7 @@ const Content = ({
                   }
                 />
                 <FormHelperText>{formik.errors.caption}</FormHelperText>
-                <Button onClick={formik.handleSubmit()} mt={1} mr={2}>
+                <Button onClick={formik.handleSubmit} mt={1} mr={2}>
                   Edit
                 </Button>
                 <Button mt={1} onClick={editOnClose}>

@@ -4,20 +4,17 @@ import { useState, useEffect } from "react";
 import api from "../../lib/api";
 import { FaRegHeart, FaRegComment } from "react-icons/fa";
 import { FiSend } from "react-icons/fi";
+import moment from "moment"
  const DetailPost = () => {
   const router = useRouter();
   const [content, setContent] = useState({});
   const { id } = router.query;
 
   const fetchContent = async () => {
-    const res = await api.get(`/posts/${id}`, {
-      params: {
-        _expand: "user",
-      },
-    });
+    const res = await api.get(`/post/${id}`);
 
-    // console.log(res.data)
-    setContent(res.data);
+    // console.log(res.data.result)
+    setContent(res?.data?.result);
   };
   useEffect(() => {
     if (router.isReady) {
@@ -28,7 +25,7 @@ import { FiSend } from "react-icons/fi";
   const rerouteToProfilePage = () => {
     return router.push("/my-profile");
   };
-
+  // console.log(content?.createdAt.moment().format())
   return (
     <Center py={6} mt={8}>
       <Box
@@ -58,7 +55,7 @@ import { FiSend } from "react-icons/fi";
           >
             <Avatar src={content?.user?.profile_picture} alt={"Author"} />
             <Stack direction={"column"} spacing={0} fontSize={"sm"}>
-              <Text fontWeight={600}>{content?.user?.username}</Text>
+              <Text fontWeight={600}>{content?.User?.username}</Text>
               <Text mr={-1} color={"gray.500"}>
                 {content?.location}
               </Text>
@@ -66,7 +63,11 @@ import { FiSend } from "react-icons/fi";
           </Stack>
         </Stack>
         <Box mx={-6} mb={4} pos={"relative"}>
-          <Image h={"290px"} w={"100%"} layout={"fill"} src={content?.image_url} />
+          <Image 
+          h={{ base: "100%", sm: "400px", lg: "400px" }}
+          w={"100%"}
+          objectFit={"contain"}
+          src={content?.image_url} />
         </Box>
         <Stack direction={"row"} justifyContent={"space-between"}>
           <Stack
@@ -105,17 +106,17 @@ import { FiSend } from "react-icons/fi";
             />
           </Stack>
           <Stack>
-            <Text>{content?.date}</Text>
+            <Text fontSize={"10px"}color={"gray.500"}>{moment(content?.createdAt).format('MMMM Do YYYY')}</Text>
           </Stack>
         </Stack>
         <Stack mt={4}>
           <Text ml={-4} fontWeight={"bold"}>
-            {content?.likes} Likes
+            {content?.like_count} Likes
           </Text>
         </Stack>
         <Box ml={-4}>
           <Text display="inline" fontWeight={"bold"} mr={2}>
-            {content?.user?.username}
+            {content?.User?.username}
           </Text>
           <Text display="inline">{content?.caption}</Text>
         </Box>
