@@ -48,6 +48,7 @@ const HomePage = () => {
           userId={val?.user_id}
           PassingConfirmDeletePost={() => confirmDeletePost(val.id)}
           postId={val?.id}
+          createdAt={val?.createdAt}
         />
       );
     });

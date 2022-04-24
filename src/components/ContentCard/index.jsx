@@ -23,6 +23,18 @@ import {
   AlertDialogHeader,
   AlertDialogContent,
   AlertDialogOverlay,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  VStack,
+  StackDivider,
+  Divider,
+  HStack,
+  Input,
 } from "@chakra-ui/react";
 import { FaRegHeart, FaRegComment } from "react-icons/fa";
 import { FiSend } from "react-icons/fi";
@@ -33,7 +45,7 @@ import * as Yup from "yup";
 import api from "../../lib/api";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { fetchContent } from "../../redux/actions/fetchContent"
+import { fetchContent } from "../../redux/actions/fetchContent";
 import { useEffect } from "react";
 // nanay userlogin sama userdata dipisah gimn
 // bikin resend verification
@@ -77,6 +89,7 @@ const Content = ({
   userId,
   PassingConfirmDeletePost,
   postId,
+  createdAt,
 }) => {
   const authSelector = useSelector((state) => state.auth);
   const {
@@ -89,8 +102,13 @@ const Content = ({
     onOpen: deleteOnOpen,
     onClose: deleteOnClose,
   } = useDisclosure();
+  const {
+    isOpen: commentIsOpen,
+    onOpen: commentOnOpen,
+    onClose: commentOnClose,
+  } = useDisclosure();
   const router = useRouter();
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const formik = useFormik({
     initialValues: {
@@ -108,10 +126,10 @@ const Content = ({
       console.log(editPost);
 
       await api.patch(`/post/${postId}`, editPost);
-      editOnClose()
-      dispatch(fetchContent())
-     
-      router.push("/")
+      editOnClose();
+      dispatch(fetchContent());
+
+      router.push("/");
     },
   });
 
@@ -199,7 +217,7 @@ const Content = ({
           <Image
             h={{ base: "100%", sm: "400px", lg: "400px" }}
             w={"100%"}
-            objectFit={"contain"}
+            objectFit={"cover"}
             src={imageUrl}
           />
         </Box>
@@ -216,6 +234,7 @@ const Content = ({
           <Icon
             boxSize={5}
             as={FaRegComment}
+            onClick={commentOnOpen}
             sx={{
               _hover: {
                 cursor: "pointer",
@@ -232,6 +251,250 @@ const Content = ({
             }}
           />
         </Stack>
+        {/* <Stack>
+          <Text fontSize={"10px"} color={"gray.500"}>
+            {moment(createdAt).format("MMMM Do YYYY")}
+          </Text>
+        </Stack> */}
+        <Modal isOpen={commentIsOpen} onClose={commentOnClose}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Comments</ModalHeader>
+            <ModalCloseButton />
+            <Divider />
+            <VStack
+              divider={<StackDivider borderColor="gray.200" />}
+              spacing={4}
+              align="stretch"
+            >
+              <ModalBody>
+                {/* di map nanti untuk commentnya */}
+                <Box ml={-4} mb={"2"}>
+                  <HStack>
+                    <Avatar size={"xs"} src={profilePicture} alt={"Author"} />
+                    <Text display="inline" fontWeight={"bold"} mr={2}>
+                      {username}
+                    </Text>
+                    <Text display="inline">{caption}</Text>
+                  </HStack>
+                </Box>
+                <Divider />
+                <Box position={"relative"} zIndex={2} mt={"2"}>
+                  <Box>
+                    <Avatar
+                      mb={"2"}
+                      size={"xs"}
+                      src={"https://bit.ly/kent-c-dodds"}
+                      alt={"Author"}
+                    />
+                    <Text
+                      ml={"2.5"}
+                      display="inline"
+                      fontWeight={"bold"}
+                      mr={2}
+                    >
+                      username
+                    </Text>
+                    <Text display="inline">caption</Text>
+                  </Box>
+                  <Box>
+                    <Avatar
+                      mb={"2"}
+                      size={"xs"}
+                      src={"https://bit.ly/ryan-florence"}
+                      alt={"Author"}
+                    />
+                    <Text
+                      ml={"2.5"}
+                      display="inline"
+                      fontWeight={"bold"}
+                      mr={2}
+                    >
+                      username
+                    </Text>
+                    <Text display="inline">caption</Text>
+                  </Box>
+                  <Box>
+                    <Avatar
+                      mb={"2"}
+                      size={"xs"}
+                      src={"https://bit.ly/ryan-florence"}
+                      alt={"Author"}
+                    />
+                    <Text
+                      ml={"2.5"}
+                      display="inline"
+                      fontWeight={"bold"}
+                      mr={2}
+                    >
+                      username
+                    </Text>
+                    <Text display="inline">caption</Text>
+                  </Box>
+                  <Box>
+                    <Avatar
+                      mb={"2"}
+                      size={"xs"}
+                      src={"https://bit.ly/ryan-florence"}
+                      alt={"Author"}
+                    />
+                    <Text
+                      ml={"2.5"}
+                      display="inline"
+                      fontWeight={"bold"}
+                      mr={2}
+                    >
+                      username
+                    </Text>
+                    <Text display="inline">caption</Text>
+                  </Box>
+                  <Box>
+                    <Avatar
+                      mb={"2"}
+                      size={"xs"}
+                      src={"https://bit.ly/ryan-florence"}
+                      alt={"Author"}
+                    />
+                    <Text
+                      ml={"2.5"}
+                      display="inline"
+                      fontWeight={"bold"}
+                      mr={2}
+                    >
+                      username
+                    </Text>
+                    <Text display="inline">caption</Text>
+                  </Box>
+                  <Box>
+                    <Avatar
+                      mb={"2"}
+                      size={"xs"}
+                      src={"https://bit.ly/ryan-florence"}
+                      alt={"Author"}
+                    />
+                    <Text
+                      ml={"2.5"}
+                      display="inline"
+                      fontWeight={"bold"}
+                      mr={2}
+                    >
+                      username
+                    </Text>
+                    <Text display="inline">caption</Text>
+                  </Box>
+                  <Box>
+                    <Avatar
+                      mb={"2"}
+                      size={"xs"}
+                      src={"https://bit.ly/ryan-florence"}
+                      alt={"Author"}
+                    />
+                    <Text
+                      ml={"2.5"}
+                      display="inline"
+                      fontWeight={"bold"}
+                      mr={2}
+                    >
+                      username
+                    </Text>
+                    <Text display="inline">caption</Text>
+                  </Box>
+                  <Box>
+                    <Avatar
+                      mb={"2"}
+                      size={"xs"}
+                      src={"https://bit.ly/ryan-florence"}
+                      alt={"Author"}
+                    />
+                    <Text
+                      ml={"2.5"}
+                      display="inline"
+                      fontWeight={"bold"}
+                      mr={2}
+                    >
+                      username
+                    </Text>
+                    <Text display="inline">caption</Text>
+                  </Box>
+                  <Box>
+                    <Avatar
+                      mb={"2"}
+                      size={"xs"}
+                      src={"https://bit.ly/ryan-florence"}
+                      alt={"Author"}
+                    />
+                    <Text
+                      ml={"2.5"}
+                      display="inline"
+                      fontWeight={"bold"}
+                      mr={2}
+                    >
+                      username
+                    </Text>
+                    <Text display="inline">caption</Text>
+                  </Box>
+                  <Box>
+                    <Avatar
+                      mb={"2"}
+                      size={"xs"}
+                      src={"https://bit.ly/ryan-florence"}
+                      alt={"Author"}
+                    />
+                    <Text
+                      ml={"2.5"}
+                      display="inline"
+                      fontWeight={"bold"}
+                      mr={2}
+                    >
+                      username
+                    </Text>
+                    <Text display="inline">caption</Text>
+                  </Box>
+                  <Box>
+                    <Avatar
+                      mb={"2"}
+                      size={"xs"}
+                      src={"https://bit.ly/ryan-florence"}
+                      alt={"Author"}
+                    />
+                    <Text
+                      ml={"2.5"}
+                      display="inline"
+                      fontWeight={"bold"}
+                      mr={2}
+                    >
+                      username
+                    </Text>
+                    <Text display="inline">caption</Text>
+                  </Box>
+                  <Box>
+                    <Avatar
+                      mb={"2"}
+                      size={"xs"}
+                      src={"https://bit.ly/ryan-florence"}
+                      alt={"Author"}
+                    />
+                    <Text
+                      ml={"2.5"}
+                      display="inline"
+                      fontWeight={"bold"}
+                      mr={2}
+                    >
+                      username
+                    </Text>
+                    <Text display="inline">caption</Text>
+                  </Box>
+                </Box>
+                {/* <Text mb={"-4"} textAlign={"center"}>see more</Text> */}
+              </ModalBody>
+
+              <HStack position={"relative"} zIndex={1} my={"2"} mx={"2"}>
+                <Input />
+                <Button color={"#32b280"}>Post</Button>
+              </HStack>
+            </VStack>
+          </ModalContent>
+        </Modal>
         <Stack mt={4}>
           <Text ml={-4} fontWeight={"bold"}>
             {likes} Likes
