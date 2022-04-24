@@ -47,38 +47,6 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { fetchContent } from "../../redux/actions/fetchContent";
 import { useEffect } from "react";
-// nanay userlogin sama userdata dipisah gimn
-// bikin resend verification
-// apa harus pake api
-// ambil id dari post pas render trs masukin ke edit ama delete post
-// nanya kakaknya delete postnya gimn
-// kalo detail post ambil datanya trs render ulang ama tambahin date
-// pake pas kliknya itu diambil routeparams ato id dari postnya baru masukin ke getnya method
-// kalo fullname itu diuserprofileaja pas edit
-// bisa pake nano id di post methodnya di backend
-// kalo mau pake nanoid itu
-// id: nanoid
-// biar g ngedouble di databsenya
-// kalo mau sort pake api
-// pakeuserlogin di comment like share ama profile kalo user blmlogin
-// tanya kakaknya klao maufetch contetn dimasukin redux
-// kalo reset password itu dari frontend kasih patch forget password / token user tersebut
-// di backend kasih endpoint buat cari tokennya dan verify tokennya baru delete
-// endpoint itu sekali nembak ke api itu endpoint route ama controllernya
-// tanya kenapa id dari detail post g dpt
-// hrs disabled login buttonnya
-// kalo mau dapetin error dari backend err.response.data.message
-// kalo infinite scrol sebelum di tambahin itu dispread buat di timpa ama yg baru biar yang lama g ilang
-// kalo comment tuh ambil created at itu dari database kalo mau compare baru di moment().utc()
-// kalo mau kasih liat liked post dari user ambil datanya dari table like
-// di detail post hrs ada 5 most recent comments
-// nanya kakanya protected page gimn ama requires auth
-// kalo username or email it upake includes username.include(@) return true itu email kalo false username
-// kalo g pake regex cari di stackoverflow ada di bookmark
-// pake regex unutk email cari di stackoverflow
-// kalo mau kasih character hrs mix character itu pkae if ternary di form helper text
-// user ttp bisa login tp kasih button untuk resend verification
-// tombol verification di user profile
 const Content = ({
   username,
   location,
