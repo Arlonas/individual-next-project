@@ -22,15 +22,15 @@ import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { userLogin } from "../../redux/actions/auth";
 import { useRequiresAuth } from "../../lib/hooks/useRequiresAuth";
-import { useRouter } from "next/router"
+import { useRouter } from "next/router";
 
 export default function SignIn() {
-  const authSelector = useSelector((state) => state.auth)
+  const authSelector = useSelector((state) => state.auth);
   const [showPassword, setShowPassword] = useState(false);
 
   const dispatch = useDispatch();
 
-  const router = useRouter()
+  const router = useRouter();
 
   const formik = useFormik({
     initialValues: {
@@ -48,11 +48,11 @@ export default function SignIn() {
       setTimeout(() => {
         dispatch(userLogin(values, formik.setSubmitting));
       }, 2000);
-      router.push("/")
+      router.push("/");
     },
   });
 
-  useRequiresAuth()
+  useRequiresAuth();
   return (
     <Flex
       minH={"100vh"}
@@ -111,7 +111,17 @@ export default function SignIn() {
                 justify={"space-between"}
               >
                 <Checkbox>Remember me</Checkbox>
-                <Text color={"blue.400"}>Forgot password?</Text>
+                <Link href={"/forgot-password"}>
+                  <Text
+                    _hover={{
+                      cursor: "pointer",
+                      textDecoration: "underline",
+                    }}
+                    color={"blue.400"}
+                  >
+                    Forgot password?
+                  </Text>
+                </Link>
               </Stack>
               <Button
                 bg={"blue.400"}

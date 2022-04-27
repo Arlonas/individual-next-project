@@ -35,6 +35,7 @@ import {
   Divider,
   HStack,
   Input,
+  Container,
 } from "@chakra-ui/react";
 import { FaRegHeart, FaRegComment } from "react-icons/fa";
 import { FiSend } from "react-icons/fi";
@@ -46,7 +47,8 @@ import api from "../../lib/api";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { fetchContent } from "../../redux/actions/fetchContent";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import moment from "moment";
 const Content = ({
   username,
   location,
@@ -77,7 +79,9 @@ const Content = ({
   } = useDisclosure();
   const router = useRouter();
   const dispatch = useDispatch();
-
+  const [commentList, setCommentList] = useState([]);
+  const [comments, setComments] = useState([]);
+  const [commentPage, setCommentPage] = useState(1);
   const formik = useFormik({
     initialValues: {
       caption: caption,
@@ -86,12 +90,12 @@ const Content = ({
     validationSchema: Yup.object().shape({
       caption: Yup.string().required("This field is required"),
     }),
-
+    validateOnChange: false,
     onSubmit: async (values) => {
       const editPost = {
         caption: values.caption,
       };
-      console.log(editPost);
+      // console.log(editPost);
 
       await api.patch(`/post/${postId}`, editPost);
       editOnClose();
@@ -100,11 +104,75 @@ const Content = ({
       router.push("/");
     },
   });
+  // console.log(postId)
+
+  const commentFormik = useFormik({
+    initialValues: {
+      comment: "",
+    },
+
+    validationSchema: Yup.object().shape({
+      comment: Yup.string()
+        .required("This field is required")
+        .max(300, "Max Characters 300"),
+    }),
+    validateOnChange: false,
+    onSubmit: async (values) => {
+      try {
+        // console.log(values);
+        await api.post(`/post/${postId}/comments`, {
+          comment: values.comment,
+        });
+        commentFormik.setFieldValue("comment", "");
+      } catch (err) {
+        console.log(err);
+      }
+    },
+  });
+  const maxCommentsPerPage = 10;
+  const fetchComment = async () => {
+    try {
+      const res = await api.get(`/post/${postId}/comments`, {
+        params: {
+          _sortBy: "createdAt",
+          _sortDir: "ASC",
+        },
+      });
+      fetchComment();
+      setCommentList(res.data.result.rows);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  const renderComment = () => {
+    // console.log(commentList);
+    return commentList.map((val) => {
+      return (
+        <Box mb={2}>
+          <Avatar
+            mb={"2"}
+            size={"xs"}
+            src={"https://bit.ly/kent-c-dodds"}
+            alt={"Author"}
+          />
+          <Text ml={"2.5"} display="inline" fontWeight={"bold"} mr={2}>
+            {val.User.username}
+          </Text>
+          <Text display="inline">{val.comment}</Text>
+          <Text fontSize={"xs"} color={"gray.500"}>
+            {moment(val.createdAt).format("MMMM Do YYYY")}
+          </Text>
+        </Box>
+      );
+    });
+  };
+  useEffect(() => {
+    fetchComment();
+  }, []);
 
   const rerouteToProfilePage = () => {
     return router.push("/my-profile");
   };
-
   return (
     <Center py={6} mt={8}>
       <Box
@@ -219,251 +287,62 @@ const Content = ({
             }}
           />
         </Stack>
-        {/* <Stack>
-          <Text fontSize={"10px"} color={"gray.500"}>
-            {moment(createdAt).format("MMMM Do YYYY")}
-          </Text>
-        </Stack> */}
-        <Modal isOpen={commentIsOpen} onClose={commentOnClose}>
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>Comments</ModalHeader>
-            <ModalCloseButton />
-            <Divider />
-            <VStack
-              divider={<StackDivider borderColor="gray.200" />}
-              spacing={4}
-              align="stretch"
-            >
-              <ModalBody>
-                {/* di map nanti untuk commentnya */}
-                <Box ml={-4} mb={"2"}>
-                  <HStack>
-                    <Avatar size={"xs"} src={profilePicture} alt={"Author"} />
-                    <Text display="inline" fontWeight={"bold"} mr={2}>
-                      {username}
-                    </Text>
-                    <Text display="inline">{caption}</Text>
-                  </HStack>
-                </Box>
-                <Divider />
-                <Box position={"relative"} zIndex={2} mt={"2"}>
-                  <Box>
-                    <Avatar
-                      mb={"2"}
-                      size={"xs"}
-                      src={"https://bit.ly/kent-c-dodds"}
-                      alt={"Author"}
-                    />
-                    <Text
-                      ml={"2.5"}
-                      display="inline"
-                      fontWeight={"bold"}
-                      mr={2}
-                    >
-                      username
-                    </Text>
-                    <Text display="inline">caption</Text>
-                  </Box>
-                  <Box>
-                    <Avatar
-                      mb={"2"}
-                      size={"xs"}
-                      src={"https://bit.ly/ryan-florence"}
-                      alt={"Author"}
-                    />
-                    <Text
-                      ml={"2.5"}
-                      display="inline"
-                      fontWeight={"bold"}
-                      mr={2}
-                    >
-                      username
-                    </Text>
-                    <Text display="inline">caption</Text>
-                  </Box>
-                  <Box>
-                    <Avatar
-                      mb={"2"}
-                      size={"xs"}
-                      src={"https://bit.ly/ryan-florence"}
-                      alt={"Author"}
-                    />
-                    <Text
-                      ml={"2.5"}
-                      display="inline"
-                      fontWeight={"bold"}
-                      mr={2}
-                    >
-                      username
-                    </Text>
-                    <Text display="inline">caption</Text>
-                  </Box>
-                  <Box>
-                    <Avatar
-                      mb={"2"}
-                      size={"xs"}
-                      src={"https://bit.ly/ryan-florence"}
-                      alt={"Author"}
-                    />
-                    <Text
-                      ml={"2.5"}
-                      display="inline"
-                      fontWeight={"bold"}
-                      mr={2}
-                    >
-                      username
-                    </Text>
-                    <Text display="inline">caption</Text>
-                  </Box>
-                  <Box>
-                    <Avatar
-                      mb={"2"}
-                      size={"xs"}
-                      src={"https://bit.ly/ryan-florence"}
-                      alt={"Author"}
-                    />
-                    <Text
-                      ml={"2.5"}
-                      display="inline"
-                      fontWeight={"bold"}
-                      mr={2}
-                    >
-                      username
-                    </Text>
-                    <Text display="inline">caption</Text>
-                  </Box>
-                  <Box>
-                    <Avatar
-                      mb={"2"}
-                      size={"xs"}
-                      src={"https://bit.ly/ryan-florence"}
-                      alt={"Author"}
-                    />
-                    <Text
-                      ml={"2.5"}
-                      display="inline"
-                      fontWeight={"bold"}
-                      mr={2}
-                    >
-                      username
-                    </Text>
-                    <Text display="inline">caption</Text>
-                  </Box>
-                  <Box>
-                    <Avatar
-                      mb={"2"}
-                      size={"xs"}
-                      src={"https://bit.ly/ryan-florence"}
-                      alt={"Author"}
-                    />
-                    <Text
-                      ml={"2.5"}
-                      display="inline"
-                      fontWeight={"bold"}
-                      mr={2}
-                    >
-                      username
-                    </Text>
-                    <Text display="inline">caption</Text>
-                  </Box>
-                  <Box>
-                    <Avatar
-                      mb={"2"}
-                      size={"xs"}
-                      src={"https://bit.ly/ryan-florence"}
-                      alt={"Author"}
-                    />
-                    <Text
-                      ml={"2.5"}
-                      display="inline"
-                      fontWeight={"bold"}
-                      mr={2}
-                    >
-                      username
-                    </Text>
-                    <Text display="inline">caption</Text>
-                  </Box>
-                  <Box>
-                    <Avatar
-                      mb={"2"}
-                      size={"xs"}
-                      src={"https://bit.ly/ryan-florence"}
-                      alt={"Author"}
-                    />
-                    <Text
-                      ml={"2.5"}
-                      display="inline"
-                      fontWeight={"bold"}
-                      mr={2}
-                    >
-                      username
-                    </Text>
-                    <Text display="inline">caption</Text>
-                  </Box>
-                  <Box>
-                    <Avatar
-                      mb={"2"}
-                      size={"xs"}
-                      src={"https://bit.ly/ryan-florence"}
-                      alt={"Author"}
-                    />
-                    <Text
-                      ml={"2.5"}
-                      display="inline"
-                      fontWeight={"bold"}
-                      mr={2}
-                    >
-                      username
-                    </Text>
-                    <Text display="inline">caption</Text>
-                  </Box>
-                  <Box>
-                    <Avatar
-                      mb={"2"}
-                      size={"xs"}
-                      src={"https://bit.ly/ryan-florence"}
-                      alt={"Author"}
-                    />
-                    <Text
-                      ml={"2.5"}
-                      display="inline"
-                      fontWeight={"bold"}
-                      mr={2}
-                    >
-                      username
-                    </Text>
-                    <Text display="inline">caption</Text>
-                  </Box>
-                  <Box>
-                    <Avatar
-                      mb={"2"}
-                      size={"xs"}
-                      src={"https://bit.ly/ryan-florence"}
-                      alt={"Author"}
-                    />
-                    <Text
-                      ml={"2.5"}
-                      display="inline"
-                      fontWeight={"bold"}
-                      mr={2}
-                    >
-                      username
-                    </Text>
-                    <Text display="inline">caption</Text>
-                  </Box>
-                </Box>
-                {/* <Text mb={"-4"} textAlign={"center"}>see more</Text> */}
-              </ModalBody>
+        <Text textAlign={"end"} fontSize={"10px"} color={"gray.500"}>
+          {moment(createdAt).format("MMMM Do YYYY")}
+        </Text>
 
-              <HStack position={"relative"} zIndex={1} my={"2"} mx={"2"}>
-                <Input />
-                <Button color={"#32b280"}>Post</Button>
-              </HStack>
-            </VStack>
-          </ModalContent>
+        <Modal isOpen={commentIsOpen} onClose={commentOnClose}>
+          <Container>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Comments</ModalHeader>
+              <ModalCloseButton />
+              <Divider />
+              <VStack
+                divider={<StackDivider borderColor="gray.200" />}
+                spacing={4}
+                align="stretch"
+              >
+                <ModalBody>
+                  {/* di map nanti untuk commentnya */}
+                  <Box ml={-4} mb={"2"}>
+                    <HStack>
+                      <Avatar size={"xs"} src={profilePicture} alt={"Author"} />
+                      <Text display="inline" fontWeight={"bold"} mr={2}>
+                        {username}
+                      </Text>
+                      <Text display="inline">{caption}</Text>
+                    </HStack>
+                  </Box>
+                  <Divider />
+                  {/* {postId == commentList.post_id ? (
+                  ) : null} */}
+                    <Box maxH={"320px"} overflowY={"scroll"} mt={"2"}>
+                      {renderComment()}
+                    </Box>
+
+                  {/* <Text mb={"-4"} textAlign={"center"}>see more</Text> */}
+                </ModalBody>
+
+                <HStack my={"2"} mx={"2"}>
+                  <Input
+                    onChange={(event) =>
+                      commentFormik.setFieldValue("comment", event.target.value)
+                    }
+                    value={commentFormik.values.comment}
+                  />
+                  <Button
+                    onClick={commentFormik.handleSubmit}
+                    color={"#32b280"}
+                  >
+                    Post
+                  </Button>
+                </HStack>
+              </VStack>
+            </ModalContent>
+          </Container>
         </Modal>
-        <Stack mt={4}>
+        <Stack mt={2.5}>
           <Text ml={-4} fontWeight={"bold"}>
             {likes} Likes
           </Text>

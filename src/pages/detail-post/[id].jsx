@@ -75,11 +75,11 @@ const DetailPost = () => {
           <Image
             h={{ base: "100%", sm: "400px", lg: "400px" }}
             w={"100%"}
-            objectFit={"contain"}
+            objectFit={"cover"}
             src={content?.image_url}
           />
         </Box>
-        <Stack direction={"row"} justifyContent={"space-between"}>
+        <Stack ml={0.2} direction={"row"} justifyContent={"space-between"}>
           <Stack
             my={-3}
             ml={-4}
@@ -115,13 +115,13 @@ const DetailPost = () => {
               }}
             />
           </Stack>
-          <Stack>
-            <Text fontSize={"10px"} color={"gray.500"}>
-              {moment(content?.createdAt).format("MMMM Do YYYY")}
-            </Text>
-          </Stack>
         </Stack>
-        <Stack mt={4}>
+        <Stack mt={-1}>
+          <Text textAlign={"end"} fontSize={"10px"} color={"gray.500"}>
+            {moment(content?.createdAt).format("MMMM Do YYYY")}
+          </Text>
+        </Stack>
+        <Stack mt={2.5}>
           <Text ml={-4} fontWeight={"bold"}>
             {content?.like_count} Likes
           </Text>
