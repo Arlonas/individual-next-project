@@ -27,7 +27,6 @@ import {
   ModalOverlay,
   ModalContent,
   ModalHeader,
-  ModalFooter,
   ModalBody,
   ModalCloseButton,
   VStack,
@@ -50,6 +49,7 @@ import Link from "next/link";
 import { fetchContent } from "../../redux/actions/fetchContent";
 import { useEffect, useState } from "react";
 import moment from "moment";
+// pagination nanti didispatch aja bikin global state
 const Content = ({
   username,
   location,

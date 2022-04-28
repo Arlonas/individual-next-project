@@ -2,11 +2,22 @@ import {
   Avatar,
   Box,
   Center,
+  Container,
+  Divider,
   Icon,
   Image,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
   Stack,
+  StackDivider,
   Text,
   useColorModeValue,
+  useDisclosure,
+  VStack,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
@@ -18,12 +29,45 @@ const DetailPost = () => {
   const router = useRouter();
   const [content, setContent] = useState({});
   const { id } = router.query;
+  const {
+    isOpen: commentIsOpen,
+    onOpen: commentOnOpen,
+    onClose: commentOnClose,
+  } = useDisclosure();
 
   const fetchContent = async () => {
-    const res = await api.get(`/post/${id}`);
+    const res = await api.get(`/post/${id}`, {
+      params: {
+        _limit: 5,
+        _sortDir: "DESC",
+        _sortBy: "createdAt"
+      },
+    });
 
     // console.log(res.data.result)
     setContent(res?.data?.result);
+  };
+  const renderComment = () => {
+    // console.log(commentList);
+    return content.Comments?.map((val) => {
+      return (
+        <Box mb={2}>
+          <Avatar
+            mb={"2"}
+            size={"xs"}
+            src={"https://bit.ly/kent-c-dodds"}
+            alt={"Author"}
+          />
+          <Text ml={"2.5"} display="inline" fontWeight={"bold"} mr={2}>
+            {val.User.username}
+          </Text>
+          <Text display="inline">{val.comment}</Text>
+          <Text fontSize={"xs"} color={"gray.500"}>
+            {moment(val.createdAt).format("MMMM Do YYYY")}
+          </Text>
+        </Box>
+      );
+    });
   };
   useEffect(() => {
     if (router.isReady) {
@@ -99,6 +143,7 @@ const DetailPost = () => {
             <Icon
               boxSize={5}
               as={FaRegComment}
+              onClick={commentOnOpen}
               sx={{
                 _hover: {
                   cursor: "pointer",
@@ -121,6 +166,27 @@ const DetailPost = () => {
             {moment(content?.createdAt).format("MMMM Do YYYY")}
           </Text>
         </Stack>
+        <Modal isOpen={commentIsOpen} onClose={commentOnClose}>
+          <Container>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Comments</ModalHeader>
+              <ModalCloseButton />
+              <Divider />
+              <VStack
+                divider={<StackDivider borderColor="gray.200" />}
+                spacing={4}
+                align="stretch"
+              >
+                <ModalBody>
+                  <Box maxH={"320px"}  mt={"2"}>
+                    {renderComment()}
+                  </Box>
+                </ModalBody>
+              </VStack>
+            </ModalContent>
+          </Container>
+        </Modal>
         <Stack mt={2.5}>
           <Text ml={-4} fontWeight={"bold"}>
             {content?.like_count} Likes
