@@ -19,7 +19,7 @@ axiosInstance.interceptors.response.use((res) => {
 
     return res
 }, (err) => {
-    if(err.response.status == 419) {
+    if(err?.response?.status == 419) {
         jsCookie.remove("auth_token")
 
         store.dispatch({

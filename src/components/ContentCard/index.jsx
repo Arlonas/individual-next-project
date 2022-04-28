@@ -36,8 +36,9 @@ import {
   HStack,
   Input,
   Container,
+  useToast,
 } from "@chakra-ui/react";
-import { FaRegHeart, FaRegComment } from "react-icons/fa";
+import { FaRegHeart, FaRegComment, FaHeart } from "react-icons/fa";
 import { FiSend } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { HamburgerIcon } from "@chakra-ui/icons";
@@ -80,8 +81,10 @@ const Content = ({
   const router = useRouter();
   const dispatch = useDispatch();
   const [commentList, setCommentList] = useState([]);
+  const [like, setLike] = useState(false);
   const [comments, setComments] = useState([]);
   const [commentPage, setCommentPage] = useState(1);
+  const toast = useToast();
   const formik = useFormik({
     initialValues: {
       caption: caption,
@@ -104,7 +107,6 @@ const Content = ({
       router.push("/");
     },
   });
-  // console.log(postId)
 
   const commentFormik = useFormik({
     initialValues: {
@@ -118,14 +120,24 @@ const Content = ({
     }),
     validateOnChange: false,
     onSubmit: async (values) => {
-      try {
-        // console.log(values);
-        await api.post(`/post/${postId}/comments`, {
-          comment: values.comment,
+      if (authSelector.id) {
+        try {
+          // console.log(values);
+          await api.post(`/post/${postId}/comments`, {
+            comment: values.comment,
+          });
+          commentFormik.setFieldValue("comment", "");
+        } catch (err) {
+          console.log(err);
+        }
+      } else {
+        toast({
+          status: "error",
+          title: "Cannot comment on post",
+          description: "You have to sign in first in order to enjoy our features",
+          duration: 2000,
         });
-        commentFormik.setFieldValue("comment", "");
-      } catch (err) {
-        console.log(err);
+        commentFormik.setFieldValue("comment", "")
       }
     },
   });
@@ -173,6 +185,35 @@ const Content = ({
   const rerouteToProfilePage = () => {
     return router.push("/my-profile");
   };
+
+  const likesStatus = async () => {
+    if (authSelector.id) {
+      const res = await api.get(`/post/${postId}/likes`);
+      console.log(res?.data?.result)
+      setLike(res?.data?.result);
+    }
+    return;
+  };
+
+  const createAndDeleteLike = async () => {
+    if (authSelector.id) {
+      await api.post(`post/${postId}/likes`);
+      likesStatus()
+      dispatch(fetchContent())
+    } else {
+      toast({
+        status: "error",
+        title: "Cannot like post",
+        description: "You have to sign in first in order to enjoy our features",
+        duration: 2000,
+      });
+    }
+  };
+
+  useEffect(() => {
+      likesStatus();
+    
+  }, []);
   return (
     <Center py={6} mt={8}>
       <Box
@@ -260,7 +301,9 @@ const Content = ({
         <Stack my={-3} ml={-4} spacing={5} direction="row" alignItems="center">
           <Icon
             boxSize={5}
-            as={FaRegHeart}
+            as={like ? FaHeart : FaRegHeart}
+            color={like ? "red.500" : null}
+            onClick={() => createAndDeleteLike()}
             sx={{
               _hover: {
                 cursor: "pointer",
@@ -317,9 +360,9 @@ const Content = ({
                   <Divider />
                   {/* {postId == commentList.post_id ? (
                   ) : null} */}
-                    <Box maxH={"320px"} overflowY={"scroll"} mt={"2"}>
-                      {renderComment()}
-                    </Box>
+                  <Box maxH={"320px"} overflowY={"scroll"} mt={"2"}>
+                    {renderComment()}
+                  </Box>
 
                   {/* <Text mb={"-4"} textAlign={"center"}>see more</Text> */}
                 </ModalBody>
