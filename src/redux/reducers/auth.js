@@ -15,7 +15,6 @@ export const auth_reducer = (state = init_state, action) => {
       email: action.payload?.email,
       fullName: action.payload?.full_name,
       id: action.payload?.id,
-      imageUrl: action.payload?.image_url,
       biography: action.payload?.bio,
       backgroundProfilePicture: action.payload?.background_profile_picture,
       profilePicture: action.payload?.profile_picture,

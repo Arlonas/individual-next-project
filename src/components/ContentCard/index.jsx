@@ -103,7 +103,7 @@ const Content = ({
       await api.patch(`/post/${postId}`, editPost);
       editOnClose();
       dispatch(fetchContent());
-
+      
       router.push("/");
     },
   });
@@ -127,6 +127,7 @@ const Content = ({
             comment: values.comment,
           });
           commentFormik.setFieldValue("comment", "");
+          commentFormik.setSubmitting(false)
         } catch (err) {
           console.log(err);
         }
@@ -134,10 +135,11 @@ const Content = ({
         toast({
           status: "error",
           title: "Cannot comment on post",
-          description: "You have to sign in first in order to enjoy our features",
+          description:
+            "You have to sign in first in order to enjoy our features",
           duration: 2000,
         });
-        commentFormik.setFieldValue("comment", "")
+        commentFormik.setFieldValue("comment", "");
       }
     },
   });
@@ -150,7 +152,6 @@ const Content = ({
           _sortDir: "ASC",
         },
       });
-      fetchComment();
       setCommentList(res.data.result.rows);
     } catch (err) {
       console.log(err);
@@ -189,7 +190,7 @@ const Content = ({
   const likesStatus = async () => {
     if (authSelector.id) {
       const res = await api.get(`/post/${postId}/likes`);
-      console.log(res?.data?.result)
+      console.log(res?.data?.result);
       setLike(res?.data?.result);
     }
     return;
@@ -198,8 +199,8 @@ const Content = ({
   const createAndDeleteLike = async () => {
     if (authSelector.id) {
       await api.post(`post/${postId}/likes`);
-      likesStatus()
-      dispatch(fetchContent())
+      likesStatus();
+      dispatch(fetchContent());
     } else {
       toast({
         status: "error",
@@ -211,8 +212,7 @@ const Content = ({
   };
 
   useEffect(() => {
-      likesStatus();
-    
+    likesStatus();
   }, []);
   return (
     <Center py={6} mt={8}>
@@ -241,9 +241,24 @@ const Content = ({
                 onClick={rerouteToProfilePage}
                 src={profilePicture}
                 alt={"Author"}
+                sx={{
+                  _hover: {
+                    cursor: "pointer",
+                  },
+                }}
               />
             ) : (
-              <Avatar src={profilePicture} alt={"Author"} />
+              <Link href={"/profile"}>
+                <Avatar
+                  src={profilePicture}
+                  alt={"Author"}
+                  sx={{
+                    _hover: {
+                      cursor: "pointer",
+                    },
+                  }}
+                />
+              </Link>
             )}
             <Stack direction={"column"} spacing={0} fontSize={"sm"}>
               <Text fontWeight={600}>{username}</Text>
@@ -377,6 +392,7 @@ const Content = ({
                   <Button
                     onClick={commentFormik.handleSubmit}
                     color={"#32b280"}
+                    disabled={commentFormik.isSubmitting}
                   >
                     Post
                   </Button>

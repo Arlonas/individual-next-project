@@ -12,72 +12,155 @@ import {
   useDisclosure,
   FormControl,
   FormLabel,
-  AvatarBadge,
   Input,
   Grid,
   GridItem,
+  Button,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  useToast,
+  FormHelperText,
 } from "@chakra-ui/react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { EditIcon, SmallCloseIcon } from "@chakra-ui/icons";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/router";
 import api from "../../lib/api";
-import requiresAuth from "../../lib/hoc/requiresAuth";
-import ContentImage from "./content";
+import Link from "next/link";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { auth_types } from "../../redux/types";
 
 const MyProfile = () => {
   const authSelector = useSelector((state) => state.auth);
-  const [content, setContent] = useState([]);
+  const [contentImage, setContentImage] = useState([]);
+  const [myProfileContent, setMyProfileContent] = useState([])
   const { isOpen, onOpen, onClose } = useDisclosure();
-  //  fetch user biar gosah di map
-  // yang perlu di map photonya aja
-
+  const router = useRouter();
+  const inputFileRef = useRef();
+  const [selectedFile, setSelectedFile] = useState(null);
+  const toast = useToast();
   const fetchContentUser = async () => {
     try {
-      const res = await api.get("/posts", {
-        params: {
-          _expand: "user",
-          userId: authSelector.id,
-        },
-      });
-      setContent(res.data);
-      console.log(res.data);
+      const res = await api.get("/profile");
+      setContentImage(res.data.result.Posts);
+      console.log(res.data.result)
+      setMyProfileContent(res.data.result)
     } catch (err) {
       console.log(err);
     }
   };
 
-  const renderImage = async () => {
-    return content.map((val) => {
+  const formik = useFormik({
+    initialValues: {
+      username: "",
+      fullName: "",
+      bio: "",
+    },
+
+    validationSchema: Yup.object().shape({
+      username: Yup.string().required("This field is required"),
+      fullName: Yup.string().required("This field is required"),
+      bio: Yup.string().required("This field is required"),
+    }),
+
+    validateOnChange: false,
+    onSubmit: async (values) => {
+      console.log(selectedFile);
+      console.log(values);
+      try {
+        if (!selectedFile) {
+          toast({
+            status: "error",
+            title: "Failed to edit profile",
+            description: "U have not chose a profile picture",
+            duration: 2000,
+          });
+          return;
+        }
+        const formData = new FormData();
+
+        formData.append("username", values.username);
+        formData.append("full_name", values.fullName);
+        formData.append("bio", values.bio);
+        formData.append("update_image_file", selectedFile);
+
+        await api.post("/profile", formData);
+        setSelectedFile(null);
+        formik.setFieldValue("username", "");
+        formik.setFieldValue("fullName", "");
+        formik.setFieldValue("bio", "");
+        formik.setSubmitting(false);
+        onClose();
+        fetchContentUser();
+      } catch (err) {
+        console.log(err);
+        console.log(err?.response?.data?.message);
+        if (err?.response?.data?.message == "Username has been taken") {
+          formik.setFieldError("username", "Username has been taken");
+        }
+        toast({
+          status: "error",
+          title: "Failed to upload post",
+          description: err?.response?.data?.message,
+          duration: 2000,
+        });
+      }
+    },
+  });
+  const handleFile = (event) => {
+    setSelectedFile(event.target.files[0]);
+  };
+
+  // console.log(content)
+  const renderImage = () => {
+    return contentImage?.map((val) => {
       return (
         <GridItem>
-          <ContentImage image = {val.image}/>
+          <Link href={`/detail-post/${val.id}`}>
+            <Box px={2} mb={2}>
+              <Image src={val.image_url} />
+            </Box>
+          </Link>
         </GridItem>
       );
     });
   };
+  // console.log(renderImage())
   useEffect(() => {
     fetchContentUser();
   }, []);
   return (
     <Center py={6}>
       <Box
-        maxW={"340px"}
+        maxW={"500px"}
         w={"full"}
         bg={useColorModeValue("white", "gray.800")}
         boxShadow={"2xl"}
         rounded={"md"}
         overflow={"hidden"}
       >
-        <Image
+        <Stack
+          mt={"-4"}
+          mb={"6"}
+          justifyContent={"space-around"}
           h={"120px"}
           w={"full"}
-          src={authSelector.backgroundProfilePicture}
-          objectFit={"cover"}
-        />
+        >
+          <Heading
+            textAlign={"center"}
+            fontSize={"2xl"}
+            fontWeight={500}
+            fontFamily={"body"}
+          >
+            {myProfileContent?.username}
+          </Heading>
+        </Stack>
         <Flex justify={"center"} mt={-12}>
           <Avatar
             size={"xl"}
-            src={authSelector.profilePicture}
+            src={myProfileContent?.profile_picture}
             alt={"Author"}
             css={{
               border: "2px solid white",
@@ -98,123 +181,125 @@ const MyProfile = () => {
             onClick={onOpen}
           />
         </Stack>
-        <Flex
-          minH={"100vh"}
-          align={"center"}
-          justify={"center"}
-          bg={useColorModeValue("gray.50", "gray.800")}
-          onClick={isOpen}
-        >
-          <Stack
-            spacing={4}
-            w={"full"}
-            maxW={"md"}
-            bg={useColorModeValue("white", "gray.700")}
-            rounded={"xl"}
-            boxShadow={"lg"}
-            p={6}
-            my={12}
-          >
-            <Heading lineHeight={1.1} fontSize={{ base: "2xl", sm: "3xl" }}>
-              User Profile Edit
-            </Heading>
-            <FormControl id="userName">
-              <FormLabel>User Icon</FormLabel>
-              <Stack direction={["column", "row"]} spacing={6}>
-                <Center>
-                  <Avatar size="xl" src="https://bit.ly/sage-adebayo">
-                    <AvatarBadge
-                      as={IconButton}
-                      size="sm"
-                      rounded="full"
-                      top="-10px"
-                      colorScheme="red"
-                      aria-label="remove Image"
-                      icon={<SmallCloseIcon />}
-                    />
-                  </Avatar>
-                </Center>
-                <Center w="full">
-                  <Button w="full">Change Icon</Button>
-                </Center>
+        <Modal isOpen={isOpen} onClose={onClose}>
+          <ModalOverlay />
+          <ModalContent>
+            <Stack
+              spacing={4}
+              bg={useColorModeValue("white", "gray.700")}
+              rounded={"xl"}
+              boxShadow={"lg"}
+              p={6}
+            >
+              <Heading lineHeight={1.1} fontSize={{ base: "2xl", sm: "3xl" }}>
+                User Profile Edit
+              </Heading>
+              <FormControl id="username">
+                <FormLabel>Profile Picture</FormLabel>
+                <Stack direction={["column", "row"]} spacing={6}>
+                  <Center>
+                    <Avatar
+                      size="xl"
+                      src={myProfileContent?.profile_picture}
+                    ></Avatar>
+                  </Center>
+                  <Center w="full">
+                    <FormControl>
+                      <Input
+                        placeholder="url"
+                        onChange={handleFile}
+                        ref={inputFileRef}
+                        display={"none"}
+                        type={"file"}
+                        accept={"image/png, image/jpeg"}
+                        multiple={false}
+                      />
+                      <Button
+                        onClick={() => inputFileRef.current.click()}
+                        w="full"
+                      >
+                        Change Profile Picture
+                      </Button>
+                    </FormControl>
+                  </Center>
+                </Stack>
+              </FormControl>
+              <FormControl id="username" isRequired>
+                <FormLabel>Username</FormLabel>
+                <Input
+                  value={formik.values.username}
+                  placeholder="Username"
+                  _placeholder={{ color: "gray.500" }}
+                  onChange={(event) =>
+                    formik.setFieldValue("username", event.target.value)
+                  }
+                />
+                <FormHelperText>{formik.errors.username}</FormHelperText>
+              </FormControl>
+              <FormControl id="fullName" isRequired>
+                <FormLabel>Full Name</FormLabel>
+                <Input
+                  value={formik.values.fullName}
+                  placeholder="Full Name"
+                  _placeholder={{ color: "gray.500" }}
+                  onChange={(event) =>
+                    formik.setFieldValue("fullName", event.target.value)
+                  }
+                />
+                <FormHelperText>{formik.errors.fullName}</FormHelperText>
+              </FormControl>
+              <FormControl id="bio" isRequired>
+                <FormLabel>Biography</FormLabel>
+                <Input
+                  value={formik.values.bio}
+                  placeholder="Biography"
+                  _placeholder={{ color: "gray.500" }}
+                  onChange={(event) =>
+                    formik.setFieldValue("bio", event.target.value)
+                  }
+                />
+                <FormHelperText>{formik.errors.bio}</FormHelperText>
+              </FormControl>
+              <Stack spacing={6} direction={["column", "row"]}>
+                <Button
+                  bg={"red.400"}
+                  color={"white"}
+                  w="full"
+                  _hover={{
+                    bg: "red.500",
+                  }}
+                  onClick={onClose}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  bg={"blue.400"}
+                  color={"white"}
+                  w="full"
+                  _hover={{
+                    bg: "blue.500",
+                  }}
+                  onClick={formik.handleSubmit}
+                  disabled={formik.isSubmitting}
+                >
+                  Submit
+                </Button>
               </Stack>
-            </FormControl>
-            <FormControl id="userName" isRequired>
-              <FormLabel>User name</FormLabel>
-              <Input
-                placeholder="UserName"
-                _placeholder={{ color: "gray.500" }}
-                type="text"
-              />
-            </FormControl>
-            <FormControl id="email" isRequired>
-              <FormLabel>Email address</FormLabel>
-              <Input
-                placeholder="your-email@example.com"
-                _placeholder={{ color: "gray.500" }}
-                type="email"
-              />
-            </FormControl>
-            <FormControl id="password" isRequired>
-              <FormLabel>Password</FormLabel>
-              <Input
-                placeholder="password"
-                _placeholder={{ color: "gray.500" }}
-                type="password"
-              />
-            </FormControl>
-            <Stack spacing={6} direction={["column", "row"]}>
-              <Button
-                bg={"red.400"}
-                color={"white"}
-                w="full"
-                _hover={{
-                  bg: "red.500",
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                bg={"blue.400"}
-                color={"white"}
-                w="full"
-                _hover={{
-                  bg: "blue.500",
-                }}
-              >
-                Submit
-              </Button>
             </Stack>
-          </Stack>
-        </Flex>
+          </ModalContent>
+        </Modal>
 
         <Box p={6}>
           <Stack spacing={0} align={"center"} mb={5}>
-            <Heading fontSize={"2xl"} fontWeight={500} fontFamily={"body"}>
-              {authSelector.username}
-            </Heading>
-            <Text fontWeight={500}>{authSelector.fullName}</Text>
-            <Text>{authSelector.email}</Text>
-            <Text color={"gray.500"}>{authSelector.biography}</Text>
+            <Text fontWeight={500}>{myProfileContent?.full_name}</Text>
+            <Text>{myProfileContent?.email}</Text>
+            <Text color={"gray.500"}>{myProfileContent?.bio}</Text>
           </Stack>
           <Divider />
-
         </Box>
-        <Grid templateColumns="repeat(2, 1fr)">
-          {renderImage()}
-        </Grid>
-        <Stack direction={"row"}>{authSelector.imageUrl}</Stack>
+        <Grid templateColumns="repeat(2, 1fr)">{renderImage()}</Grid>
       </Box>
     </Center>
   );
 };
-
-export const getServerSideProps = requiresAuth((context) => {
-  const userData = context.req.cookies.user_data_login;
-  return {
-    props: {
-      user: userData,
-    },
-  };
-});
 export default MyProfile;

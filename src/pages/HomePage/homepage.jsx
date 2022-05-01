@@ -44,7 +44,7 @@ const HomePage = () => {
           imageUrl={val?.image_url}
           likes={val?.like_count}
           caption={val?.caption}
-          // profilePicture={val.user.profile_picture}
+          profilePicture={val.User.profile_picture}
           userId={val?.user_id}
           PassingConfirmDeletePost={() => confirmDeletePost(val.id)}
           postId={val?.id}

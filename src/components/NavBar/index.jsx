@@ -39,7 +39,6 @@ import jsCookie from "js-cookie";
 import { React, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import moment from "moment";
 import api from "../../lib/api";
 import { useRouter } from "next/router";
 import { fetchContent } from "../../redux/actions/fetchContent";
@@ -71,8 +70,8 @@ export default function Nav() {
     },
 
     validationSchema: Yup.object().shape({
-      location: Yup.string().required("This field is required"),
       caption: Yup.string().required("This field is required"),
+      location: Yup.string().required("This field is required"),
     }),
 
     validateOnChange: false,
@@ -88,14 +87,12 @@ export default function Nav() {
           });
           return;
         }
-        let date = moment().format("MMMM Do YYYY, h:mm:ss a");
         const formData = new FormData();
         const likes = 0;
 
         formData.append("caption", values.caption);
         formData.append("user_id", authSelector.id);
         formData.append("post_image_file", selectedFile);
-        formData.append("date", date);
         formData.append("like_count", likes);
         formData.append("location", protectedLocation());
 
@@ -133,6 +130,10 @@ export default function Nav() {
 
   const handleFile = (event) => {
     setSelectedFile(event.target.files[0]);
+  };
+
+  const rerouteToProfilePage = () => {
+    return router.push("/my-profile");
   };
   return (
     <>
@@ -260,11 +261,11 @@ export default function Nav() {
                     <Avatar src={authSelector.profilePicture} />
                   </MenuButton>
                   <MenuList>
-                    <MenuItem>
-                      Settings <Icon as={IoMdSettings} />
+                    <MenuItem onClick={rerouteToProfilePage}>
+                      Settings <span><Icon as={IoMdSettings} /></span>
                     </MenuItem>
                     <MenuItem onClick={signoutBtnHandler}>
-                      Logout <Icon as={IoMdLogOut} />
+                      Logout <span><Icon as={IoMdLogOut} /></span>
                     </MenuItem>
                   </MenuList>
                 </Menu>
