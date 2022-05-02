@@ -21,9 +21,10 @@ import {
   ModalContent,
   useToast,
   FormHelperText,
+  IconButton,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
-import { EditIcon, SmallCloseIcon } from "@chakra-ui/icons";
+import { EditIcon, EmailIcon, SmallCloseIcon } from "@chakra-ui/icons";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import api from "../../lib/api";
@@ -35,7 +36,7 @@ import { auth_types } from "../../redux/types";
 const MyProfile = () => {
   const authSelector = useSelector((state) => state.auth);
   const [contentImage, setContentImage] = useState([]);
-  const [myProfileContent, setMyProfileContent] = useState([])
+  const [myProfileContent, setMyProfileContent] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
   const inputFileRef = useRef();
@@ -45,8 +46,8 @@ const MyProfile = () => {
     try {
       const res = await api.get("/profile");
       setContentImage(res.data.result.Posts);
-      console.log(res.data.result)
-      setMyProfileContent(res.data.result)
+      console.log(res.data.result);
+      setMyProfileContent(res.data.result);
     } catch (err) {
       console.log(err);
     }
@@ -113,13 +114,29 @@ const MyProfile = () => {
     setSelectedFile(event.target.files[0]);
   };
 
+  const resendEmailVerification = async () => {
+    await api.post("/auth/resend-verification");
+    toast({
+      status: "success",
+      title: "Email sent",
+      description: "Please check your inbox",
+      duration: 2000,
+    });
+  };
+
   // console.log(content)
   const renderImage = () => {
     return contentImage?.map((val) => {
       return (
         <GridItem>
           <Link href={`/detail-post/${val.id}`}>
-            <Box px={2} mb={2}>
+            <Box
+              _hover={{
+                cursor: "pointer",
+              }}
+              px={2}
+              mb={2}
+            >
               <Image src={val.image_url} />
             </Box>
           </Link>
@@ -157,6 +174,7 @@ const MyProfile = () => {
             {myProfileContent?.username}
           </Heading>
         </Stack>
+
         <Flex justify={"center"} mt={-12}>
           <Avatar
             size={"xl"}
@@ -288,6 +306,16 @@ const MyProfile = () => {
             </Stack>
           </ModalContent>
         </Modal>
+        {myProfileContent.is_verified ? null : (
+          <Stack alignItems={"end"} mr={2}>
+            <IconButton
+              onClick={resendEmailVerification}
+              variant="outline"
+              colorScheme="teal"
+              icon={<EmailIcon />}
+            />
+          </Stack>
+        )}
 
         <Box p={6}>
           <Stack spacing={0} align={"center"} mb={5}>

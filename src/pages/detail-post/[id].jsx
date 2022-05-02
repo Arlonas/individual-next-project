@@ -40,7 +40,7 @@ const DetailPost = () => {
       params: {
         _limit: 5,
         _sortDir: "DESC",
-        _sortBy: "createdAt"
+        _sortBy: "createdAt",
       },
     });
 
@@ -106,7 +106,13 @@ const DetailPost = () => {
             spacing={1.5}
             align={"center"}
           >
-            <Avatar src={content?.user?.profile_picture} alt={"Author"} />
+            <Avatar
+              _hover={{
+                cursor: "pointer",
+              }}
+              src={content?.User?.profile_picture}
+              alt={"Author"}
+            />
             <Stack direction={"column"} spacing={0} fontSize={"sm"}>
               <Text fontWeight={600}>{content?.User?.username}</Text>
               <Text mr={-1} color={"gray.500"}>
@@ -179,7 +185,7 @@ const DetailPost = () => {
                 align="stretch"
               >
                 <ModalBody>
-                  <Box maxH={"320px"}  mt={"2"}>
+                  <Box maxH={"320px"} mt={"2"}>
                     {renderComment()}
                   </Box>
                 </ModalBody>
