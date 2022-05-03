@@ -11,16 +11,21 @@ import {
   Divider,
   Grid,
   GridItem,
+  Icon,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import api from "../../lib/api";
 import Link from "next/link";
+import { IoHeartOutline, IoHeartDislikeOutline } from "react-icons/io5";
+import { BsGripVertical } from "react-icons/bs";
 const UserProfile = () => {
   const router = useRouter();
   const { id } = router.query;
   const [contentImage, setContent] = useState([]);
   const [userProfileContent, setUserProfileContent] = useState();
+  const [postOrLike, setPostOrLike] = useState(true);
+  const [UserLikedPost, setUserLikedPost] = useState([]);
 
   const fetchContentUser = async () => {
     try {
@@ -28,6 +33,16 @@ const UserProfile = () => {
       setContent(res.data.result.Posts);
       console.log(res.data.result)
       setUserProfileContent(res.data.result);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  const fetchLikedPostUser = async () => {
+    try {
+      const res = await api.get(`/profile/posts/likes/${id}`);
+      // console.log(res.data.result);
+      setUserLikedPost(res.data.result);
+      setPostOrLike(false);
     } catch (err) {
       console.log(err);
     }
@@ -45,6 +60,30 @@ const UserProfile = () => {
               mb={2}
             >
               <Image src={val.image_url} />
+            </Box>
+          </Link>
+        </GridItem>
+      );
+    });
+  };
+  const renderLikedImage = () => {
+    return UserLikedPost.map((val) => {
+      return (
+        <GridItem>
+          <Link href={`/detail-post/${val?.Post?.id}`}>
+            <Box
+              _hover={{
+                cursor: "pointer",
+              }}
+              px={2}
+              mb={2}
+            >
+              <Image
+                w={"100%"}
+                h={"200px"}
+                objectFit={"cover"}
+                src={val?.Post?.image_url}
+              />
             </Box>
           </Link>
         </GridItem>
@@ -103,9 +142,37 @@ const UserProfile = () => {
             <Text>{userProfileContent?.email}</Text>
             <Text color={"gray.500"}>{userProfileContent?.bio}</Text>
           </Stack>
+          <Stack mx={-6} direction={"row"} justifyContent={"space-around"}>
+            <Icon
+              boxSize={5}
+              as={BsGripVertical}
+              color={"gray.300"}
+              onClick={fetchContentUser}
+              sx={{
+                _hover: {
+                  cursor: "pointer",
+                },
+              }}
+            />
+            <Icon
+              boxSize={5}
+              as={postOrLike ? IoHeartDislikeOutline : IoHeartOutline}
+              color={"gray.300"}
+              onClick={fetchLikedPostUser}
+              sx={{
+                _hover: {
+                  cursor: "pointer",
+                },
+              }}
+            />
+          </Stack>
           <Divider />
         </Box>
-        <Grid templateColumns="repeat(2, 1fr)">{renderImage()}</Grid>
+        {postOrLike ? (
+          <Grid templateColumns="repeat(2, 1fr)">{renderImage()}</Grid>
+        ) : (
+          <Grid templateColumns="repeat(2, 1fr)">{renderLikedImage()}</Grid>
+        )}
       </Box>
     </Center>
   );
