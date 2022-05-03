@@ -248,7 +248,7 @@ const Content = ({
                 }}
               />
             ) : (
-              <Link href={"/profile"}>
+              <Link href={`/profile/${userId}`}>
                 <Avatar
                   src={profilePicture}
                   alt={"Author"}
