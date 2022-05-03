@@ -22,6 +22,7 @@ import {
   useToast,
   FormHelperText,
   IconButton,
+  Icon,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { EditIcon, EmailIcon, SmallCloseIcon } from "@chakra-ui/icons";
@@ -32,22 +33,37 @@ import Link from "next/link";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { auth_types } from "../../redux/types";
+import { IoHeartOutline, IoHeartDislikeOutline } from "react-icons/io5";
+import { BsGripVertical } from "react-icons/bs";
 
 const MyProfile = () => {
   const authSelector = useSelector((state) => state.auth);
   const [contentImage, setContentImage] = useState([]);
   const [myProfileContent, setMyProfileContent] = useState([]);
+  const [UserLikedPost, setUserLikedPost] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
   const inputFileRef = useRef();
   const [selectedFile, setSelectedFile] = useState(null);
+  const [postOrLike, setPostOrLike] = useState(true);
   const toast = useToast();
   const fetchContentUser = async () => {
     try {
       const res = await api.get("/profile");
       setContentImage(res.data.result.Posts);
-      console.log(res.data.result);
       setMyProfileContent(res.data.result);
+      setPostOrLike(true);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const fetchLikedPostUser = async () => {
+    try {
+      const res = await api.get("/profile/posts/likes");
+      // console.log(res.data.result);
+      setUserLikedPost(res.data.result);
+      setPostOrLike(false);
     } catch (err) {
       console.log(err);
     }
@@ -124,7 +140,7 @@ const MyProfile = () => {
     });
   };
 
-  // console.log(content)
+  // console.log(postOrLike)
   const renderImage = () => {
     return contentImage?.map((val) => {
       return (
@@ -137,7 +153,36 @@ const MyProfile = () => {
               px={2}
               mb={2}
             >
-              <Image src={val.image_url} />
+              <Image
+                w={"100%"}
+                h={"200px"}
+                objectFit={"cover"}
+                src={val.image_url}
+              />
+            </Box>
+          </Link>
+        </GridItem>
+      );
+    });
+  };
+  const renderLikedImage = () => {
+    return UserLikedPost.map((val) => {
+      return (
+        <GridItem>
+          <Link href={`/detail-post/${val?.Post?.id}`}>
+            <Box
+              _hover={{
+                cursor: "pointer",
+              }}
+              px={2}
+              mb={2}
+            >
+              <Image
+                w={"100%"}
+                h={"200px"}
+                objectFit={"cover"}
+                src={val?.Post?.image_url}
+              />
             </Box>
           </Link>
         </GridItem>
@@ -148,6 +193,11 @@ const MyProfile = () => {
   useEffect(() => {
     fetchContentUser();
   }, []);
+  useEffect(() => {
+    if (!authSelector.id) {
+      router.push("/");
+    }
+  }, [authSelector.id]);
   return (
     <Center py={6}>
       <Box
@@ -323,9 +373,37 @@ const MyProfile = () => {
             <Text>{myProfileContent?.email}</Text>
             <Text color={"gray.500"}>{myProfileContent?.bio}</Text>
           </Stack>
+          <Stack mx={-6} direction={"row"} justifyContent={"space-around"}>
+            <Icon
+              boxSize={5}
+              as={BsGripVertical}
+              color={"gray.300"}
+              onClick={fetchContentUser}
+              sx={{
+                _hover: {
+                  cursor: "pointer",
+                },
+              }}
+            />
+            <Icon
+              boxSize={5}
+              as={postOrLike ? IoHeartDislikeOutline : IoHeartOutline}
+              color={"gray.300"}
+              onClick={fetchLikedPostUser}
+              sx={{
+                _hover: {
+                  cursor: "pointer",
+                },
+              }}
+            />
+          </Stack>
           <Divider />
         </Box>
-        <Grid templateColumns="repeat(2, 1fr)">{renderImage()}</Grid>
+        {postOrLike ? (
+          <Grid templateColumns="repeat(2, 1fr)">{renderImage()}</Grid>
+        ) : (
+          <Grid templateColumns="repeat(2, 1fr)">{renderLikedImage()}</Grid>
+        )}
       </Box>
     </Center>
   );
