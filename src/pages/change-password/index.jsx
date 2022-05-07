@@ -9,6 +9,7 @@ import {
   InputRightElement,
   Stack,
   useColorModeValue,
+  useToast
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -21,9 +22,9 @@ import api from "../../lib/api";
 const ChangePassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const toast = useToast()
 
-  const token = router.query.forgotPasswordToken
-  console.log(token)
+  const token = router.query.fpt;
 
   const formik = useFormik({
     initialValues: {
@@ -46,6 +47,8 @@ const ChangePassword = () => {
 
     validateOnChange: false,
     onSubmit: async (values) => {
+      console.log(values);
+      console.log(token);
       try {
         if (values.confirmPassword !== values.password) {
           formik.setFieldError(
@@ -55,9 +58,18 @@ const ChangePassword = () => {
         }
 
         await api.post("/auth/change-password", {
-        password: values.confirmPassword,
-        forgotPasswordToken: token
-        })
+          password: values.confirmPassword,
+          forgotPasswordToken: token,
+        });
+        toast({
+          title: "Password Changed",
+          description: "please sign in again to enjoy our features",
+          status: "success",
+          duration: 2000,
+          position: "top-right",
+        });
+        router.push("/signin")
+        formik.setSubmitting(false)
       } catch (err) {
         console.log(err);
       }
@@ -83,7 +95,7 @@ const ChangePassword = () => {
         <Heading lineHeight={1.1} fontSize={{ base: "2xl", md: "3xl" }}>
           Enter new password
         </Heading>
-        <FormControl id="password" isRequired>
+        <FormControl  isRequired>
           <FormLabel>New Password</FormLabel>
           <InputGroup>
             <Input
@@ -102,10 +114,10 @@ const ChangePassword = () => {
             </InputRightElement>
           </InputGroup>
         </FormControl>
-        <FormControl id="password" isRequired>
+        <FormControl isRequired>
           <FormLabel>Confirm New Password</FormLabel>
           <Input
-          type={"password"}
+            type={"password"}
             onChange={(event) =>
               formik.setFieldValue("confirmPassword", event.target.value)
             }
@@ -118,6 +130,8 @@ const ChangePassword = () => {
             _hover={{
               bg: "blue.500",
             }}
+            onClick={formik.handleSubmit}
+            disabled={formik.isSubmitting}
           >
             Submit
           </Button>

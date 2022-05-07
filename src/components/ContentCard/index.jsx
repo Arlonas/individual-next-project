@@ -17,12 +17,6 @@ import {
   FormHelperText,
   Button,
   Textarea,
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogContent,
-  AlertDialogOverlay,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -37,7 +31,15 @@ import {
   Container,
   useToast,
 } from "@chakra-ui/react";
-import { FaRegHeart, FaRegComment, FaHeart } from "react-icons/fa";
+import {
+  FaRegHeart,
+  FaRegComment,
+  FaHeart,
+  FaFacebook,
+  FaTwitter,
+  FaWhatsapp,
+  FaRegCopy,
+} from "react-icons/fa";
 import { FiSend } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { HamburgerIcon } from "@chakra-ui/icons";
@@ -47,8 +49,14 @@ import api from "../../lib/api";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { fetchContent } from "../../redux/actions/fetchContent";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import moment from "moment";
+import {
+  FacebookShareButton,
+  TwitterShareButton,
+  WhatsappShareButton,
+} from "react-share";
+import Page from "../Page";
 // pagination nanti didispatch aja bikin global state
 const Content = ({
   username,
@@ -84,6 +92,7 @@ const Content = ({
   const [like, setLike] = useState(false);
   const [comments, setComments] = useState([]);
   const [commentPage, setCommentPage] = useState(1);
+  const [shareButtons, setShareButtons] = useState(false);
   const toast = useToast();
   const formik = useFormik({
     initialValues: {
@@ -103,7 +112,7 @@ const Content = ({
       await api.patch(`/post/${postId}`, editPost);
       editOnClose();
       dispatch(fetchContent());
-      
+
       router.push("/");
     },
   });
@@ -127,7 +136,7 @@ const Content = ({
             comment: values.comment,
           });
           commentFormik.setFieldValue("comment", "");
-          commentFormik.setSubmitting(false)
+          commentFormik.setSubmitting(false);
         } catch (err) {
           console.log(err);
         }
@@ -148,14 +157,23 @@ const Content = ({
     try {
       const res = await api.get(`/post/${postId}/comments`, {
         params: {
+          _limit: maxCommentsPerPage,
+          _page: commentPage,
           _sortBy: "createdAt",
           _sortDir: "ASC",
         },
       });
-      setCommentList(res.data.result.rows);
+      setCommentList((prevComments) => [
+        ...prevComments,
+        ...res.data.result.rows,
+      ]);
+      // setCommentList(res.data.result.rows);
     } catch (err) {
       console.log(err);
     }
+  };
+  const fetchNextPage = () => {
+    setPage(commentPage + 1);
   };
   const renderComment = () => {
     // console.log(commentList);
@@ -181,7 +199,25 @@ const Content = ({
   };
   useEffect(() => {
     fetchComment();
-  }, []);
+  }, [commentPage]);
+  const ShareButtonHandlerTrue = () => {
+    setShareButtons(true);
+  };
+  const ShareButtonHandlerFalse = () => {
+    setShareButtons(false);
+  };
+
+  const copyLinkBtnHandler = () => {
+    navigator.clipboard.writeText(
+      `http://localhost:3000/detail-post/${postId}`
+    );
+
+    toast({
+      position: "top-right",
+      status: "info",
+      title: "Link copied",
+    });
+  };
 
   const rerouteToProfilePage = () => {
     return router.push("/my-profile");
@@ -215,41 +251,36 @@ const Content = ({
     likesStatus();
   }, []);
   return (
-    <Center py={6} mt={8}>
-      <Box
-        maxW={"445px"}
-        w={"full"}
-        bg={useColorModeValue("white", "gray.900")}
-        boxShadow={"2xl"}
-        rounded={"md"}
-        p={6}
-        my={-12}
-        overflow={"hidden"}
-      >
-        <Stack
-          ml={-3}
-          mt={-2}
-          mb={1}
-          direction={"row"}
-          spacing={3}
-          align={"center"}
-          justifyContent={"space-between"}
+    <Page
+    title={`Let's checkout the latest post from ${username}`}
+      description={caption}
+      image={imageUrl}
+      url={`http://localhost:3000/detail-post/${postId}`}
+    >
+      <Center py={6} mt={8}>
+        <Box
+          maxW={"445px"}
+          w={"full"}
+          bg={useColorModeValue("white", "gray.900")}
+          boxShadow={"2xl"}
+          rounded={"md"}
+          p={6}
+          my={-12}
+          overflow={"hidden"}
         >
-          <Stack direction={"row"} spacing={1.5} align={"center"}>
-            {userId == authSelector.id ? (
-              <Avatar
-                onClick={rerouteToProfilePage}
-                src={profilePicture}
-                alt={"Author"}
-                sx={{
-                  _hover: {
-                    cursor: "pointer",
-                  },
-                }}
-              />
-            ) : (
-              <Link href={`/profile/${userId}`}>
+          <Stack
+            ml={-3}
+            mt={-2}
+            mb={1}
+            direction={"row"}
+            spacing={3}
+            align={"center"}
+            justifyContent={"space-between"}
+          >
+            <Stack direction={"row"} spacing={1.5} align={"center"}>
+              {userId == authSelector.id ? (
                 <Avatar
+                  onClick={rerouteToProfilePage}
                   src={profilePicture}
                   alt={"Author"}
                   sx={{
@@ -258,214 +289,307 @@ const Content = ({
                     },
                   }}
                 />
-              </Link>
-            )}
-            <Stack direction={"column"} spacing={0} fontSize={"sm"}>
-              <Text fontWeight={600}>{username}</Text>
-              <Text mr={-1} color={"gray.500"}>
-                {location}
-              </Text>
-            </Stack>
-          </Stack>
-          <Stack>
-            {authSelector.id ? (
-              <Menu>
-                <MenuButton
-                  as={IconButton}
-                  aria-label="Options"
-                  icon={<HamburgerIcon />}
-                  variant="outline"
-                />
-                <MenuList>
-                  <Link href={`/detail-post/${postId}`}>
-                    <MenuItem>Detail Post</MenuItem>
-                  </Link>
-                  {userId == authSelector.id ? (
-                    <>
-                      <MenuItem onClick={editOnOpen}>Edit Post</MenuItem>
-                      <MenuItem onClick={deleteOnOpen}>Delete Post</MenuItem>
-                    </>
-                  ) : null}
-                </MenuList>
-              </Menu>
-            ) : (
-              <Menu>
-                <MenuButton
-                  as={IconButton}
-                  aria-label="Options"
-                  icon={<HamburgerIcon />}
-                  variant="outline"
-                />
-                <MenuList>
-                  <Link href={`/detail-post/${postId}`}>
-                    <MenuItem>Detail Post</MenuItem>
-                  </Link>
-                </MenuList>
-              </Menu>
-            )}
-          </Stack>
-        </Stack>
-        <Box mx={-6} mb={4} pos={"relative"}>
-          <Image
-            h={{ base: "100%", sm: "400px", lg: "400px" }}
-            w={"100%"}
-            objectFit={"cover"}
-            src={imageUrl}
-          />
-        </Box>
-        <Stack my={-3} ml={-4} spacing={5} direction="row" alignItems="center">
-          <Icon
-            boxSize={5}
-            as={like ? FaHeart : FaRegHeart}
-            color={like ? "red.500" : null}
-            onClick={() => createAndDeleteLike()}
-            sx={{
-              _hover: {
-                cursor: "pointer",
-              },
-            }}
-          />
-          <Icon
-            boxSize={5}
-            as={FaRegComment}
-            onClick={commentOnOpen}
-            sx={{
-              _hover: {
-                cursor: "pointer",
-              },
-            }}
-          />
-          <Icon
-            boxSize={5}
-            as={FiSend}
-            sx={{
-              _hover: {
-                cursor: "pointer",
-              },
-            }}
-          />
-        </Stack>
-        <Text textAlign={"end"} fontSize={"10px"} color={"gray.500"}>
-          {moment(createdAt).format("MMMM Do YYYY")}
-        </Text>
-
-        <Modal isOpen={commentIsOpen} onClose={commentOnClose}>
-          <Container>
-            <ModalOverlay />
-            <ModalContent>
-              <ModalHeader>Comments</ModalHeader>
-              <ModalCloseButton />
-              <Divider />
-              <VStack
-                divider={<StackDivider borderColor="gray.200" />}
-                spacing={4}
-                align="stretch"
-              >
-                <ModalBody>
-                  {/* di map nanti untuk commentnya */}
-                  <Box ml={-4} mb={"2"}>
-                    <HStack>
-                      <Avatar size={"xs"} src={profilePicture} alt={"Author"} />
-                      <Text display="inline" fontWeight={"bold"} mr={2}>
-                        {username}
-                      </Text>
-                      <Text display="inline">{caption}</Text>
-                    </HStack>
-                  </Box>
-                  <Divider />
-                  {/* {postId == commentList.post_id ? (
-                  ) : null} */}
-                  <Box maxH={"320px"} overflowY={"scroll"} mt={"2"}>
-                    {renderComment()}
-                  </Box>
-
-                  {/* <Text mb={"-4"} textAlign={"center"}>see more</Text> */}
-                </ModalBody>
-
-                <HStack my={"2"} mx={"2"}>
-                  <Input
-                    onChange={(event) =>
-                      commentFormik.setFieldValue("comment", event.target.value)
-                    }
-                    value={commentFormik.values.comment}
+              ) : (
+                <Link href={`/profile/${userId}`}>
+                  <Avatar
+                    src={profilePicture}
+                    alt={"Author"}
+                    sx={{
+                      _hover: {
+                        cursor: "pointer",
+                      },
+                    }}
                   />
-                  <Button
-                    onClick={commentFormik.handleSubmit}
-                    color={"#32b280"}
-                    disabled={commentFormik.isSubmitting}
-                  >
-                    Post
-                  </Button>
-                </HStack>
-              </VStack>
-            </ModalContent>
-          </Container>
-        </Modal>
-        <Stack mt={2.5}>
-          <Text ml={-4} fontWeight={"bold"}>
-            {likes} Likes
-          </Text>
-        </Stack>
-        <Box ml={-4}>
-          <Text display="inline" fontWeight={"bold"} mr={2}>
-            {username}
-          </Text>
-          {editIsOpen ? (
-            <Stack mt={1}>
-              <FormControl isOpen={editIsOpen} onClose={editOnClose}>
-                <Textarea
-                  placeholder="caption"
-                  value={formik.values.caption}
-                  onChange={(event) =>
-                    formik.setFieldValue("caption", event.target.value)
-                  }
-                />
-                <FormHelperText>{formik.errors.caption}</FormHelperText>
-                <Button onClick={formik.handleSubmit} mt={1} mr={2}>
-                  Edit
-                </Button>
-                <Button mt={1} onClick={editOnClose}>
-                  Cancel
-                </Button>
-              </FormControl>
+                </Link>
+              )}
+              <Stack direction={"column"} spacing={0} fontSize={"sm"}>
+                <Text fontWeight={600}>{username}</Text>
+                <Text mr={-1} color={"gray.500"}>
+                  {location}
+                </Text>
+              </Stack>
             </Stack>
-          ) : (
-            <Text display="inline">{caption}</Text>
-          )}
-          {deleteIsOpen ? (
-            <>
-              <AlertDialog isOpen={deleteIsOpen} onClose={deleteOnClose}>
-                <AlertDialogOverlay>
-                  <AlertDialogContent>
-                    <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                      Delete Post
-                    </AlertDialogHeader>
+            <Stack>
+              {authSelector.id ? (
+                <Menu>
+                  <MenuButton
+                    as={IconButton}
+                    aria-label="Options"
+                    icon={<HamburgerIcon />}
+                    variant="outline"
+                  />
+                  <MenuList>
+                    <Link href={`/detail-post/${postId}`}>
+                      <MenuItem>Detail Post</MenuItem>
+                    </Link>
+                    {userId == authSelector.id ? (
+                      <>
+                        <MenuItem onClick={editOnOpen}>Edit Post</MenuItem>
+                        <MenuItem onClick={deleteOnOpen}>Delete Post</MenuItem>
+                      </>
+                    ) : null}
+                  </MenuList>
+                </Menu>
+              ) : (
+                <Menu>
+                  <MenuButton
+                    as={IconButton}
+                    aria-label="Options"
+                    icon={<HamburgerIcon />}
+                    variant="outline"
+                  />
+                  <MenuList>
+                    <Link href={`/detail-post/${postId}`}>
+                      <MenuItem>Detail Post</MenuItem>
+                    </Link>
+                  </MenuList>
+                </Menu>
+              )}
+            </Stack>
+          </Stack>
+          <Box mx={-6} mb={4} pos={"relative"}>
+            <Image
+              h={{ base: "100%", sm: "400px", lg: "400px" }}
+              w={"100%"}
+              objectFit={"cover"}
+              src={imageUrl}
+            />
+          </Box>
+          <Stack
+            my={-3}
+            ml={-4}
+            spacing={5}
+            direction="row"
+            alignItems="center"
+          >
+            <Icon
+              boxSize={5}
+              as={like ? FaHeart : FaRegHeart}
+              color={like ? "red.500" : null}
+              onClick={() => createAndDeleteLike()}
+              sx={{
+                _hover: {
+                  cursor: "pointer",
+                },
+              }}
+            />
+            <Icon
+              boxSize={5}
+              as={FaRegComment}
+              onClick={commentOnOpen}
+              sx={{
+                _hover: {
+                  cursor: "pointer",
+                },
+              }}
+            />
+            {shareButtons ? (
+              <Icon
+                boxSize={5}
+                as={FiSend}
+                onClick={ShareButtonHandlerFalse}
+                sx={{
+                  _hover: {
+                    cursor: "pointer",
+                  },
+                }}
+              />
+            ) : (
+              <Icon
+                boxSize={5}
+                as={FiSend}
+                onClick={ShareButtonHandlerTrue}
+                sx={{
+                  _hover: {
+                    cursor: "pointer",
+                  },
+                }}
+              />
+            )}
+          </Stack>
+          <Text textAlign={"end"} fontSize={"10px"} color={"gray.500"}>
+            {moment(createdAt).format("MMMM Do YYYY")}
+          </Text>
 
-                    <AlertDialogBody>
-                      Are you sure? You can't undo this action afterwards.
-                    </AlertDialogBody>
-
-                    <AlertDialogFooter>
-                      <Button onClick={deleteOnClose}>Cancel</Button>
-                      <Button
-                        colorScheme="red"
-                        onClick={() => {
-                          PassingConfirmDeletePost();
-                          deleteOnClose();
+          <Modal isOpen={commentIsOpen} onClose={commentOnClose}>
+            <Container>
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>Comments</ModalHeader>
+                <ModalCloseButton />
+                <Divider />
+                <VStack
+                  divider={<StackDivider borderColor="gray.200" />}
+                  spacing={4}
+                  align="stretch"
+                >
+                  <ModalBody>
+                    {/* di map nanti untuk commentnya */}
+                    <Box ml={-4} mb={"2"}>
+                      <HStack>
+                        <Avatar
+                          size={"xs"}
+                          src={profilePicture}
+                          alt={"Author"}
+                        />
+                        <Text display="inline" fontWeight={"bold"} mr={2}>
+                          {username}
+                        </Text>
+                        <Text display="inline">{caption}</Text>
+                      </HStack>
+                    </Box>
+                    <Divider />
+                    {/* {postId == commentList.post_id ? (
+                  ) : null} */}
+                    <Box maxH={"320px"} overflowY={"scroll"} mt={"2"}>
+                      {renderComment()}
+                    </Box>
+                    {comments.length ? (
+                      <Text
+                        onClick={fetchNextPage}
+                        color={"#32b280"}
+                        mb={"-4"}
+                        _hover={{
+                          cursor: "pointer",
+                          bg: "green.400",
                         }}
-                        ml={3}
+                        textAlign={"center"}
                       >
-                        Delete
-                      </Button>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialogOverlay>
-              </AlertDialog>
-            </>
+                        see more
+                      </Text>
+                    ) : (
+                      <Text mb={"-4"} textAlign={"center"}>
+                        No more comments here
+                      </Text>
+                    )}
+                  </ModalBody>
+
+                  <HStack my={"2"} mx={"2"}>
+                    <Input
+                      onChange={(event) =>
+                        commentFormik.setFieldValue(
+                          "comment",
+                          event.target.value
+                        )
+                      }
+                      value={commentFormik.values.comment}
+                    />
+                    <Button
+                      onClick={commentFormik.handleSubmit}
+                      color={"#32b280"}
+                      disabled={commentFormik.isSubmitting}
+                    >
+                      Post
+                    </Button>
+                  </HStack>
+                </VStack>
+              </ModalContent>
+            </Container>
+          </Modal>
+          {shareButtons ? (
+            <HStack mt={2}>
+              <FacebookShareButton
+                url={`http://localhost:3000/detail-post/${postId}`}
+                quote={`Let's checkout the latest post from ${username}`}
+              >
+                <IconButton
+                  onClick={ShareButtonHandlerFalse}
+                  borderRadius={"50%"}
+                  color={"#385898"}
+                  icon={<Icon size={"15%"} as={FaFacebook} />}
+                />
+              </FacebookShareButton>
+              <TwitterShareButton
+                title={`Let's checkout the latest post from ${username}`}
+                url={`http://localhost:3000/detail-post/${postId}`}
+              >
+                <IconButton
+                  borderRadius={"50%"}
+                  color={"#1da1f2"}
+                  icon={<Icon as={FaTwitter} />}
+                />
+              </TwitterShareButton>
+              <IconButton
+                borderRadius={"50%"}
+                color={"#22c35e"}
+                icon={<Icon as={FaWhatsapp} />}
+              />
+              <Stack>
+                <IconButton
+                  onClick={copyLinkBtnHandler}
+                  borderRadius={"50%"}
+                  icon={<Icon as={FaRegCopy} />}
+                />
+              </Stack>
+            </HStack>
           ) : null}
+
+          <Stack mt={2.5}>
+            <Text ml={-4} fontWeight={"bold"}>
+              {likes} Likes
+            </Text>
+          </Stack>
+          <Box ml={-4}>
+            <Text display="inline" fontWeight={"bold"} mr={2}>
+              {username}
+            </Text>
+            {editIsOpen ? (
+              <Stack mt={1}>
+                <FormControl isOpen={editIsOpen} onClose={editOnClose}>
+                  <Textarea
+                    placeholder="caption"
+                    value={formik.values.caption}
+                    onChange={(event) =>
+                      formik.setFieldValue("caption", event.target.value)
+                    }
+                  />
+                  <FormHelperText>{formik.errors.caption}</FormHelperText>
+                  <Button onClick={formik.handleSubmit} mt={1} mr={2}>
+                    Edit
+                  </Button>
+                  <Button mt={1} onClick={editOnClose}>
+                    Cancel
+                  </Button>
+                </FormControl>
+              </Stack>
+            ) : (
+              <Text display="inline">{caption}</Text>
+            )}
+            {deleteIsOpen ? (
+              <>
+                <AlertDialog isOpen={deleteIsOpen} onClose={deleteOnClose}>
+                  <AlertDialogOverlay>
+                    <AlertDialogContent>
+                      <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                        Delete Post
+                      </AlertDialogHeader>
+
+                      <AlertDialogBody>
+                        Are you sure? You can't undo this action afterwards.
+                      </AlertDialogBody>
+
+                      <AlertDialogFooter>
+                        <Button onClick={deleteOnClose}>Cancel</Button>
+                        <Button
+                          colorScheme="red"
+                          onClick={() => {
+                            PassingConfirmDeletePost();
+                            deleteOnClose();
+                          }}
+                          ml={3}
+                        >
+                          Delete
+                        </Button>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialogOverlay>
+                </AlertDialog>
+              </>
+            ) : null}
+          </Box>
         </Box>
-      </Box>
-    </Center>
+      </Center>
+    </Page>
   );
 };
 
