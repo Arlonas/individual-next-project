@@ -6,7 +6,7 @@ export const userLogin = (values, setSubmitting) => {
   return async (dispatch) => {
     try {
       const res = await api.post("/auth/signin", {
-        username: values.username,
+        usernameOrEmail: values.usernameOrEmail,
         password: values.password
       });
 

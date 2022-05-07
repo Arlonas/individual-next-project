@@ -34,12 +34,12 @@ export default function SignIn() {
 
   const formik = useFormik({
     initialValues: {
-      username: "",
+      usernameOrEmail: "",
       password: "",
     },
 
     validationSchema: Yup.object().shape({
-      username: Yup.string().required("This field is required"),
+      usernameOrEmail: Yup.string().required("This field is required"),
       password: Yup.string().required("This field is required"),
     }),
 
@@ -75,14 +75,14 @@ export default function SignIn() {
           p={8}
         >
           <Stack spacing={4}>
-            <FormControl isInvalid={formik.errors.username} id="username">
-              <FormLabel>Username</FormLabel>
+            <FormControl isInvalid={formik.errors.usernameOrEmail} id="usernameOrEmail">
+              <FormLabel>Username or Email</FormLabel>
               <Input
                 onChange={(event) =>
-                  formik.setFieldValue("username", event.target.value)
+                  formik.setFieldValue("usernameOrEmail", event.target.value)
                 }
               />
-              <FormHelperText>{formik.errors.username}</FormHelperText>
+              <FormHelperText>{formik.errors.usernameOrEmail}</FormHelperText>
             </FormControl>
             <FormControl isInvalid={formik.errors.password} id="password">
               <FormLabel>Password</FormLabel>
@@ -102,7 +102,7 @@ export default function SignIn() {
                   </Button>
                 </InputRightElement>
               </InputGroup>
-              <FormHelperText>{formik.errors.username}</FormHelperText>
+              <FormHelperText>{formik.errors.usernameOrEmail}</FormHelperText>
             </FormControl>
             <Stack spacing={10}>
               <Stack
