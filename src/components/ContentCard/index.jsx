@@ -90,8 +90,8 @@ const Content = ({
   const dispatch = useDispatch();
   const [commentList, setCommentList] = useState([]);
   const [like, setLike] = useState(false);
-  const [comments, setComments] = useState([]);
   const [commentPage, setCommentPage] = useState(1);
+  const [commentCount, setCommentCount] = useState(0)
   const [shareButtons, setShareButtons] = useState(false);
   const toast = useToast();
   const formik = useFormik({
@@ -137,6 +137,7 @@ const Content = ({
           });
           commentFormik.setFieldValue("comment", "");
           commentFormik.setSubmitting(false);
+          fetchInitialComment()
         } catch (err) {
           console.log(err);
         }
@@ -152,15 +153,32 @@ const Content = ({
       }
     },
   });
-  const maxCommentsPerPage = 10;
-  const fetchComment = async () => {
+  const maxCommentsPerPage = 5;
+  const fetchInitialComment = async () => {
+    try {
+      const res = await api.get(`/post/${postId}/comments`, {
+        params: {
+          _limit: maxCommentsPerPage,
+          _page: 1,
+          _sortBy: "createdAt",
+          _sortDir: "DESC",
+        },
+      });
+      setCommentList(res.data.result.rows);
+      setCommentCount(res.data.result.count)
+      setCommentPage(1)
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  const fetchNextCommentPage = async () => {
     try {
       const res = await api.get(`/post/${postId}/comments`, {
         params: {
           _limit: maxCommentsPerPage,
           _page: commentPage,
           _sortBy: "createdAt",
-          _sortDir: "ASC",
+          _sortDir: "DESC",
         },
       });
       setCommentList((prevComments) => [
@@ -172,9 +190,9 @@ const Content = ({
       console.log(err);
     }
   };
-  const fetchNextPage = () => {
-    setPage(commentPage + 1);
-  };
+  const fetchNextCommentPages = () => {
+    setCommentPage(commentPage + 1)
+  }
   const renderComment = () => {
     // console.log(commentList);
     return commentList.map((val) => {
@@ -198,7 +216,12 @@ const Content = ({
     });
   };
   useEffect(() => {
-    fetchComment();
+    fetchInitialComment();
+  }, []);
+  useEffect(() => {
+    if (commentPage > 1) {
+      fetchNextCommentPage();
+    }
   }, [commentPage]);
   const ShareButtonHandlerTrue = () => {
     setShareButtons(true);
@@ -252,7 +275,7 @@ const Content = ({
   }, []);
   return (
     <Page
-    title={`Let's checkout the latest post from ${username}`}
+      title={`Let's checkout the latest post from ${username}`}
       description={caption}
       image={imageUrl}
       url={`http://localhost:3000/detail-post/${postId}`}
@@ -444,14 +467,13 @@ const Content = ({
                     <Box maxH={"320px"} overflowY={"scroll"} mt={"2"}>
                       {renderComment()}
                     </Box>
-                    {comments.length ? (
+                    {commentList.length !== commentCount ? (
                       <Text
-                        onClick={fetchNextPage}
+                        onClick={fetchNextCommentPages}
                         color={"#32b280"}
                         mb={"-4"}
                         _hover={{
                           cursor: "pointer",
-                          bg: "green.400",
                         }}
                         textAlign={"center"}
                       >
