@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Content from "../../components/ContentCard";
 import api from "../../lib/api";
-import { fetchContent as contentList } from "../../redux/actions/fetchContent";
+import { fetchInitialContent as contentList } from "../../redux/actions/fetchInitialContent";
+import { fetchNextContent as contentNextList } from "../../redux/actions/fetchNextContent";
 import { useDispatch, useSelector } from "react-redux";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const HomePage = () => {
   // bikin content dulu aja jadi pas udh login bisa create bisa delete bisa edit
@@ -24,6 +26,8 @@ const HomePage = () => {
   const toast = useToast();
   const dispatch = useDispatch();
   const contentSelector = useSelector((state) => state.content);
+  const [page, setPage] = useState(1);
+  const [moreContent, setMoreContent] = useState(true);
 
   const fetchContent = () => {
     setIsLoading(true);
@@ -31,12 +35,20 @@ const HomePage = () => {
     setTimeout(() => {
       dispatch(contentList());
       // console.log(contentList());
-      setIsLoading(false)
+      setIsLoading(false);
     }, 2000);
+  };
+  const fetchNextContent = () => {
+    dispatch(contentNextList(page));
+  };
+  const fetchNextPage = () => {
+    setPage(page + 1);
   };
   // console.log(contentSelector.contentList)
   const renderContent = () => {
     return contentSelector?.contentList?.map((val) => {
+      console.log(val.username)
+      console.log(val.image_url)
       return (
         <Content
           username={val?.User?.username}
@@ -44,7 +56,7 @@ const HomePage = () => {
           imageUrl={val?.image_url}
           likes={val?.like_count}
           caption={val?.caption}
-          profilePicture={val.User.profile_picture}
+          profilePicture={val?.User?.profile_picture}
           userId={val?.user_id}
           PassingConfirmDeletePost={() => confirmDeletePost(val.id)}
           postId={val?.id}
@@ -53,7 +65,15 @@ const HomePage = () => {
       );
     });
   };
+  // if (contentSelector?.contentList?.length == contentSelector?.contentCount) {
+  //   setMoreContent(false);
+  // }
 
+  useEffect(() => {
+    if (page > 1) {
+      fetchNextContent();
+    }
+  }, [page]);
   useEffect(() => {
     fetchContent();
   }, []);
@@ -68,8 +88,16 @@ const HomePage = () => {
   };
   return (
     <Box>
-      <Stack alignItems={"center"}>{isLoading ? <Spinner /> : null}</Stack>
-      {renderContent()}
+      <InfiniteScroll
+        dataLength={contentSelector?.contentList?.length}
+        next={fetchNextPage}
+        hasMore={true}
+        loader={
+          <Stack alignItems={"center"}>{isLoading ? <Spinner /> : null}</Stack>
+        }
+      >
+        {renderContent()}
+      </InfiniteScroll>
     </Box>
   );
 };

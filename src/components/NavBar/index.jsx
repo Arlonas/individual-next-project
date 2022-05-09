@@ -41,7 +41,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import api from "../../lib/api";
 import { useRouter } from "next/router";
-import { fetchContent } from "../../redux/actions/fetchContent";
+import {  fetchInitialContent } from "../../redux/actions/fetchInitialContent";
 import { useRef } from "react";
 
 export default function Nav() {
@@ -101,7 +101,7 @@ export default function Nav() {
         formik.setFieldValue("caption", "");
         formik.setFieldValue("location", "");
         setTimeout(() => {
-          dispatch(fetchContent());
+          dispatch(fetchInitialContent());
         }, 2000);
         router.push("/");
       } catch (err) {

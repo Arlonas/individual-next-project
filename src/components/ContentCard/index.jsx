@@ -48,7 +48,7 @@ import * as Yup from "yup";
 import api from "../../lib/api";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { fetchContent } from "../../redux/actions/fetchContent";
+import { fetchContent } from "../../redux/actions/fetchInitialContent";
 import { useEffect, useRef, useState } from "react";
 import moment from "moment";
 import {
@@ -91,7 +91,7 @@ const Content = ({
   const [commentList, setCommentList] = useState([]);
   const [like, setLike] = useState(false);
   const [commentPage, setCommentPage] = useState(1);
-  const [commentCount, setCommentCount] = useState(0)
+  const [commentCount, setCommentCount] = useState(0);
   const [shareButtons, setShareButtons] = useState(false);
   const toast = useToast();
   const formik = useFormik({
@@ -137,7 +137,7 @@ const Content = ({
           });
           commentFormik.setFieldValue("comment", "");
           commentFormik.setSubmitting(false);
-          fetchInitialComment()
+          fetchInitialComment();
         } catch (err) {
           console.log(err);
         }
@@ -165,8 +165,8 @@ const Content = ({
         },
       });
       setCommentList(res.data.result.rows);
-      setCommentCount(res.data.result.count)
-      setCommentPage(1)
+      setCommentCount(res.data.result.count);
+      setCommentPage(1);
     } catch (err) {
       console.log(err);
     }
@@ -191,8 +191,8 @@ const Content = ({
     }
   };
   const fetchNextCommentPages = () => {
-    setCommentPage(commentPage + 1)
-  }
+    setCommentPage(commentPage + 1);
+  };
   const renderComment = () => {
     // console.log(commentList);
     return commentList.map((val) => {
@@ -249,7 +249,7 @@ const Content = ({
   const likesStatus = async () => {
     if (authSelector.id) {
       const res = await api.get(`/post/${postId}/likes`);
-      console.log(res?.data?.result);
+      // console.log(res?.data?.result);
       setLike(res?.data?.result);
     }
     return;
