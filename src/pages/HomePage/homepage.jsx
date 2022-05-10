@@ -29,6 +29,7 @@ const HomePage = () => {
   const contentSelector = useSelector((state) => state.content);
   const [page, setPage] = useState(1);
   const [moreContent, setMoreContent] = useState(true);
+  const authSelector = useSelector((state) => state.auth);
 
   const fetchContent = () => {
     setIsLoading(true);
@@ -80,6 +81,16 @@ const HomePage = () => {
   }, []);
 
   const confirmDeletePost = async (id) => {
+    if (!authSelector.isVerified) {
+      toast({
+        status: "error",
+        title: "Cannot delete post",
+        description:
+          "U have not verify your account, Please verify your account to enjoy our web apps features",
+        duration: 3000,
+      });
+      return
+    }
     let text = `Are u sure?  You want to delete this post `;
     if (confirm(text)) {
       await api.delete(`/post/${id}`);

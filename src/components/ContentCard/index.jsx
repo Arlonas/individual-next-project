@@ -112,6 +112,17 @@ const Content = ({
     }),
     validateOnChange: false,
     onSubmit: async (values) => {
+      if (!authSelector.isVerified) {
+        toast({
+          status: "error",
+          title: "Cannot edit post",
+          description:
+            "U have not verify your account, Please verify your account to enjoy our web apps features",
+          duration: 3000,
+        });
+        editOnClose()
+        return;
+      }
       const editPost = {
         caption: values.caption,
       };
@@ -137,6 +148,17 @@ const Content = ({
     }),
     validateOnChange: false,
     onSubmit: async (values) => {
+      if (!authSelector.isVerified) {
+        toast({
+          status: "error",
+          title: "Cannot comment on post",
+          description:
+            "U have not verify your account, Please verify your account to enjoy our web apps features",
+          duration: 3000,
+        });
+        formik.setFieldValue("comment", "")
+        return;
+      }
       if (authSelector.id) {
         try {
           // console.log(values);
@@ -232,6 +254,24 @@ const Content = ({
     }
   }, [commentPage]);
   const ShareButtonHandlerTrue = () => {
+    if (!authSelector.isVerified) {
+      toast({
+        status: "error",
+        title: "Cannot delete post",
+        description:
+          "U have not verify your account, Please verify your account to enjoy our web apps features",
+        duration: 3000,
+      });
+      return;
+    }
+    if (authSelector.id) {
+      toast({
+        status: "error",
+        title: "Cannot share post",
+        description: "You have to sign in first in order to enjoy our features",
+        duration: 2000,
+      });
+    }
     setShareButtons(true);
   };
   const ShareButtonHandlerFalse = () => {
@@ -264,6 +304,16 @@ const Content = ({
   };
 
   const createAndDeleteLike = async () => {
+    if (!authSelector.isVerified) {
+      toast({
+        status: "error",
+        title: "Cannot like post",
+        description:
+          "U have not verify your account, Please verify your account to enjoy our web apps features",
+        duration: 3000,
+      });
+      return;
+    }
     if (authSelector.id) {
       await api.post(`post/${postId}/likes`);
       likesStatus();

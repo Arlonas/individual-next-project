@@ -41,7 +41,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import api from "../../lib/api";
 import { useRouter } from "next/router";
-import {  fetchInitialContent } from "../../redux/actions/fetchInitialContent";
+import { fetchInitialContent } from "../../redux/actions/fetchInitialContent";
 import { useRef } from "react";
 
 export default function Nav() {
@@ -78,6 +78,19 @@ export default function Nav() {
     onSubmit: async (values) => {
       // console.log(selectedFile);
       try {
+        if (!authSelector.isVerified) {
+          toast({
+            status: "error",
+            title: "Failed to upload content",
+            description:
+              "U have not verify your account, Please verify your account to enjoy our web apps features",
+            duration: 3000,
+          });
+          setSelectedFile(null);
+          formik.setFieldValue("caption", "");
+          formik.setFieldValue("location", "");
+          return;
+        }
         if (!selectedFile) {
           toast({
             status: "error",
@@ -262,10 +275,16 @@ export default function Nav() {
                   </MenuButton>
                   <MenuList>
                     <MenuItem onClick={rerouteToProfilePage}>
-                      Settings <span><Icon as={IoMdSettings} /></span>
+                      Settings{" "}
+                      <span>
+                        <Icon as={IoMdSettings} />
+                      </span>
                     </MenuItem>
                     <MenuItem onClick={signoutBtnHandler}>
-                      Logout <span><Icon as={IoMdLogOut} /></span>
+                      Logout{" "}
+                      <span>
+                        <Icon as={IoMdLogOut} />
+                      </span>
                     </MenuItem>
                   </MenuList>
                 </Menu>
