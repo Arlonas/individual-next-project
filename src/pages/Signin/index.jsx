@@ -46,9 +46,8 @@ export default function SignIn() {
     validateOnChange: false,
     onSubmit: (values) => {
       setTimeout(() => {
-        dispatch(userLogin(values, formik.setSubmitting));
+        dispatch(userLogin(values, formik.setSubmitting, router, formik.setFieldError));
       }, 2000);
-      router.push("/");
     },
   });
 

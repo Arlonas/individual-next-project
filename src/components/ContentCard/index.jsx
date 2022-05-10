@@ -30,6 +30,12 @@ import {
   Input,
   Container,
   useToast,
+  AlertDialog,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogBody,
+  AlertDialogFooter,
 } from "@chakra-ui/react";
 import {
   FaRegHeart,
@@ -48,7 +54,7 @@ import * as Yup from "yup";
 import api from "../../lib/api";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { fetchContent } from "../../redux/actions/fetchInitialContent";
+import { fetchNextContent } from "../../redux/actions/fetchNextContent";
 import { useEffect, useRef, useState } from "react";
 import moment from "moment";
 import {
@@ -111,7 +117,7 @@ const Content = ({
 
       await api.patch(`/post/${postId}`, editPost);
       editOnClose();
-      dispatch(fetchContent());
+      dispatch(fetchNextContent());
 
       router.push("/");
     },

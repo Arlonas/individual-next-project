@@ -8,7 +8,9 @@ const AuthProvider = ({ children }) => {
     const dispatch = useDispatch()
 
     useEffect(async () => {
-        const userToken = jsCookie.get("auth_token")
+        try {
+            const userToken = jsCookie.get("auth_token")
+        // console.log(userToken)
 
         if(userToken) {
            const userResponse = await axiosInstance.get("/auth/refresh-token", {
@@ -25,6 +27,11 @@ const AuthProvider = ({ children }) => {
                 payload: userResponse?.data?.result?.user,
             })
         }
+        } catch (err) {
+            console.log(err)
+
+        }
+        
     }, [])
 
     return children

@@ -7,6 +7,8 @@ const init_state = {
 
 export const network_reducer = (state = init_state, action) => {
     if(action.type === network_types.NETWORK_ERROR) {
+        // console.log(state.errorMessage)
+        // console.log(state.errorTitle)
         return {
             ...state,
             errorMessage: action.payload.description,

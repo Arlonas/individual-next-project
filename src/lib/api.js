@@ -18,7 +18,8 @@ axiosInstance.interceptors.response.use((res) => {
     // console.log(res.data)
 
     return res
-}, (err) => {
+}, 
+(err) => {
     if(err?.response?.status == 419) {
         jsCookie.remove("auth_token")
 
@@ -26,13 +27,9 @@ axiosInstance.interceptors.response.use((res) => {
             type: auth_types.LOGOUT_USER
         })
     }
-    store.dispatch({
-        type: network_types.NETWORK_ERROR,
-        payload: {
-            title: "Network Error",
-            description: err.message
-        }
-    })
-})
+
+    return Promise.reject(err)
+}
+)
 
 export default axiosInstance

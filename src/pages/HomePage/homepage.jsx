@@ -47,8 +47,8 @@ const HomePage = () => {
   // console.log(contentSelector.contentList)
   const renderContent = () => {
     return contentSelector?.contentList?.map((val) => {
-      console.log(val.username)
-      console.log(val.image_url)
+      // console.log(val.username)
+      // console.log(val.image_url)
       return (
         <Content
           username={val?.User?.username}
