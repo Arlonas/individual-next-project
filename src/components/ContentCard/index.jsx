@@ -55,8 +55,10 @@ import api from "../../lib/api";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { fetchNextContent } from "../../redux/actions/fetchNextContent";
+import { fetchInitialContent } from "../../redux/actions/fetchInitialContent";
 import { useEffect, useRef, useState } from "react";
 import moment from "moment";
+import { fetchAllContent } from "../../redux/actions/fetchAllContent";
 import {
   FacebookShareButton,
   TwitterShareButton,
@@ -117,7 +119,7 @@ const Content = ({
 
       await api.patch(`/post/${postId}`, editPost);
       editOnClose();
-      dispatch(fetchNextContent());
+      dispatch(fetchAllContent());
 
       router.push("/");
     },
@@ -265,7 +267,7 @@ const Content = ({
     if (authSelector.id) {
       await api.post(`post/${postId}/likes`);
       likesStatus();
-      dispatch(fetchContent());
+      dispatch(fetchAllContent());
     } else {
       toast({
         status: "error",

@@ -1,13 +1,11 @@
 import api from "../../lib/api";
 import { content_types, network_types } from "../types";
 
-export const fetchInitialContent = () => {
+export const fetchAllContent = () => {
   return async (dispatch) => {
     try {
-      const res = await api.get("/post", {
+      const res = await api.get("/post/postsWithoutPageAndLimit", {
         params: {
-          _limit: 5,
-          _page: 1,
           _sortBy: "createdAt",
           _sortDir: "DESC",
         },
@@ -18,11 +16,8 @@ export const fetchInitialContent = () => {
       const contentCount = res?.data?.result?.count;
       // console.log(contentList)
       dispatch({
-        type: content_types.FETCH_CONTENT,
-        payload: {
-          contentList,
-          contentCount,
-        },
+        type: content_types.FETCH_ALL_CONTENT,
+        payload: contentList,
       });
     } catch (err) {
       console.log(err);

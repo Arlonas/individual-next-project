@@ -19,6 +19,11 @@ export const content_reducer = (state = init_state, action) => {
       contentCount: action.payload.contentCount,
       contentList: [...state.contentList, ...action.payload.contentList],
     };
+  } else if (action.type === content_types.FETCH_ALL_CONTENT) {
+    return {
+      ...state,
+      contentList: action.payload,
+    };
   }
   return state;
 };

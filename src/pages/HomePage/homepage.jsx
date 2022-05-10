@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import Content from "../../components/ContentCard";
 import api from "../../lib/api";
 import { fetchInitialContent as contentList } from "../../redux/actions/fetchInitialContent";
+import { fetchAllContent } from "../../redux/actions/fetchAllContent";
 import { fetchNextContent as contentNextList } from "../../redux/actions/fetchNextContent";
 import { useDispatch, useSelector } from "react-redux";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -82,7 +83,7 @@ const HomePage = () => {
     let text = `Are u sure?  You want to delete this post `;
     if (confirm(text)) {
       await api.delete(`/post/${id}`);
-      fetchContent();
+      fetchAllContent();
     }
     router.push("/");
   };
