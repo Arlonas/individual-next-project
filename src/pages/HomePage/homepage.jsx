@@ -53,6 +53,7 @@ const HomePage = () => {
       // console.log(val.image_url)
       return (
         <Content
+        key={val.id.toString()}
           username={val?.User?.username}
           location={val?.location}
           imageUrl={val?.image_url}
@@ -94,9 +95,8 @@ const HomePage = () => {
     let text = `Are u sure?  You want to delete this post `;
     if (confirm(text)) {
       await api.delete(`/post/${id}`);
-      fetchAllContent();
+      dispatch(fetchAllContent());
     }
-    router.push("/");
   };
   return (
     <Box>

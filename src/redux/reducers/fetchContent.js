@@ -24,6 +24,14 @@ export const content_reducer = (state = init_state, action) => {
       ...state,
       contentList: action.payload,
     };
+  } else if (action.type === content_types.DELETE_CONTENT) {
+    const deleteContentArr = [...state.contentList];
+    deleteContentArr.splice(action.payload, 1);
+
+    return {
+      ...state,
+      contentList: deleteContentArr,
+    };
   }
   return state;
 };

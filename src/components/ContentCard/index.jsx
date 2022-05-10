@@ -77,6 +77,7 @@ const Content = ({
   PassingConfirmDeletePost,
   postId,
   createdAt,
+  index
 }) => {
   const authSelector = useSelector((state) => state.auth);
   const {
@@ -102,6 +103,7 @@ const Content = ({
   const [commentCount, setCommentCount] = useState(0);
   const [shareButtons, setShareButtons] = useState(false);
   const toast = useToast();
+  console.log(index)
   const formik = useFormik({
     initialValues: {
       caption: caption,
@@ -131,8 +133,6 @@ const Content = ({
       await api.patch(`/post/${postId}`, editPost);
       editOnClose();
       dispatch(fetchAllContent());
-
-      router.push("/");
     },
   });
 
@@ -156,7 +156,7 @@ const Content = ({
             "U have not verify your account, Please verify your account to enjoy our web apps features",
           duration: 3000,
         });
-        formik.setFieldValue("comment", "")
+        commentFormik.setFieldValue("comment", "")
         return;
       }
       if (authSelector.id) {
