@@ -53,7 +53,7 @@ const HomePage = () => {
       // console.log(val.image_url)
       return (
         <Content
-        key={val.id.toString()}
+          key={val.id.toString()}
           username={val?.User?.username}
           location={val?.location}
           imageUrl={val?.image_url}
@@ -90,7 +90,7 @@ const HomePage = () => {
           "U have not verify your account, Please verify your account to enjoy our web apps features",
         duration: 3000,
       });
-      return
+      return;
     }
     let text = `Are u sure?  You want to delete this post `;
     if (confirm(text)) {
@@ -104,9 +104,7 @@ const HomePage = () => {
         dataLength={contentSelector?.contentList?.length}
         next={fetchNextPage}
         hasMore={true}
-        loader={
-          <Stack alignItems={"center"}>{isLoading ? <Spinner /> : null}</Stack>
-        }
+        loader={<Spinner />}
       >
         {renderContent()}
       </InfiniteScroll>

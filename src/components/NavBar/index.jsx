@@ -91,6 +91,16 @@ export default function Nav() {
           formik.setFieldValue("location", "");
           return;
         }
+        if (selectedFile) {
+          toast({
+            status: "success",
+            title: "file upload success",
+            description: "U have  chose a file",
+            duration: 2000,
+            position: "top-right"
+          });
+          return;
+        }
         if (!selectedFile) {
           toast({
             status: "error",
@@ -113,9 +123,8 @@ export default function Nav() {
         setSelectedFile(null);
         formik.setFieldValue("caption", "");
         formik.setFieldValue("location", "");
-        setTimeout(() => {
-          dispatch(fetchInitialContent());
-        }, 2000);
+        dispatch(fetchInitialContent());
+
         router.push("/");
       } catch (err) {
         console.log(err);

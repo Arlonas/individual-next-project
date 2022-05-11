@@ -83,16 +83,16 @@ const ForgotPassword = () => {
         >
           You'll get an email with a reset link
         </Text>
-        <FormControl id="email">
-          <Input
-            placeholder="your-email@example.com"
-            _placeholder={{ color: "gray.500" }}
-            type="email"
-            onChange={(event) =>
-                formik.setFieldValue("email", event.target.value)
-              }
-          />
-        </FormControl>
+        <FormControl isInvalid={formik.errors.email} id="email" isRequired>
+              <FormLabel>Email address</FormLabel>
+              <Input
+                type="email"
+                onChange={(event) =>
+                  formik.setFieldValue("email", event.target.value)
+                }
+              />
+              <FormHelperText>{formik.errors.email}</FormHelperText>
+            </FormControl>
         <Stack spacing={6}>
           <Button
             bg={"blue.400"}

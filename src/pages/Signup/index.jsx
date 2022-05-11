@@ -40,6 +40,7 @@ export default function Signup() {
       username: "",
       email: "",
       password: "",
+      repeatPassword: ""
     },
 
     validationSchema: Yup.object().shape({
@@ -52,11 +53,22 @@ export default function Signup() {
       //   /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
       //   "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and one special case Character"
       // ),
+      repeatPassword: Yup.string().required("This field is required"),
+      // .matches(
+      //   /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
+      //   "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and one special case Character"
+      // ),
     }),
 
     validateOnChange: false,
     onSubmit: async (values) => {
       try {
+        if (values.repeatPassword !== values.password) {
+          formik.setFieldError(
+            "repeatPassword",
+            "Password didn't match, Please input the same password as above"
+          );
+        }
         const res = await api.post("/auth/signup", {
           username: values.username,
           email: values.email,
@@ -65,9 +77,9 @@ export default function Signup() {
         // console.log(res?.statusText)
         toast({
           title: "Account created.",
-          description: "We've created your account for you.",
+          description: "We've created your account for you. Please check your inbox",
           status: "success",
-          duration: 2000,
+          duration: 3000,
           position: "top-right",
         });
 
@@ -86,13 +98,6 @@ export default function Signup() {
         ) {
           formik.setFieldError("email", "This email address has been taken");
         }
-        dispatch({
-          type: network_types.NETWORK_ERROR,
-          payload: {
-            title: "Registration Failed",
-            description: err?.response?.data?.message,
-          },
-        });
         formik.setSubmitting(false);
       }
     },
@@ -123,7 +128,7 @@ export default function Signup() {
           p={8}
         >
           <Stack spacing={4}>
-            <FormControl id="username" isRequired>
+            <FormControl isInvalid={formik.errors.username} id="username" isRequired>
               <FormLabel>Username</FormLabel>
               <Input
                 onChange={(event) =>
@@ -132,7 +137,7 @@ export default function Signup() {
               />
               <FormHelperText>{formik.errors.username}</FormHelperText>
             </FormControl>
-            <FormControl id="email" isRequired>
+            <FormControl isInvalid={formik.errors.email}id="email" isRequired>
               <FormLabel>Email address</FormLabel>
               <Input
                 type="email"
@@ -142,7 +147,7 @@ export default function Signup() {
               />
               <FormHelperText>{formik.errors.email}</FormHelperText>
             </FormControl>
-            <FormControl id="password" isRequired>
+            <FormControl isInvalid={formik.errors.password} id="password" isRequired>
               <FormLabel>Password</FormLabel>
               <InputGroup>
                 <Input
@@ -163,6 +168,18 @@ export default function Signup() {
                 </InputRightElement>
               </InputGroup>
               <FormHelperText>{formik.errors.password}</FormHelperText>
+            </FormControl>
+            <FormControl isInvalid={formik.errors.repeatPassword} isRequired>
+              <FormLabel>Repeat Password</FormLabel>
+              <InputGroup>
+                <Input
+                  type={"password"}
+                  onChange={(event) =>
+                    formik.setFieldValue("repeatPassword", event.target.value)
+                  }
+                />
+              </InputGroup>
+              <FormHelperText>{formik.errors.repeatPassword}</FormHelperText>
             </FormControl>
             <Stack spacing={10} pt={2}>
               <Button

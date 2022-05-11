@@ -103,7 +103,6 @@ const Content = ({
   const [commentCount, setCommentCount] = useState(0);
   const [shareButtons, setShareButtons] = useState(false);
   const toast = useToast();
-  console.log(index)
   const formik = useFormik({
     initialValues: {
       caption: caption,
@@ -231,7 +230,7 @@ const Content = ({
           <Avatar
             mb={"2"}
             size={"xs"}
-            src={"https://bit.ly/kent-c-dodds"}
+            src={val.User.profile_picture}
             alt={"Author"}
           />
           <Text ml={"2.5"} display="inline" fontWeight={"bold"} mr={2}>
@@ -253,42 +252,43 @@ const Content = ({
       fetchNextCommentPage();
     }
   }, [commentPage]);
-  const ShareButtonHandlerTrue = () => {
-    if (!authSelector.isVerified) {
-      toast({
-        status: "error",
-        title: "Cannot delete post",
-        description:
-          "U have not verify your account, Please verify your account to enjoy our web apps features",
-        duration: 3000,
-      });
-      return;
-    }
-    if (authSelector.id) {
-      toast({
-        status: "error",
-        title: "Cannot share post",
-        description: "You have to sign in first in order to enjoy our features",
-        duration: 2000,
-      });
-    }
-    setShareButtons(true);
-  };
-  const ShareButtonHandlerFalse = () => {
-    setShareButtons(false);
-  };
+  // const ShareButtonHandlerTrue = () => {
+  //   if (!authSelector.isVerified) {
+  //     toast({
+  //       status: "error",
+  //       title: "Cannot delete post",
+  //       description:
+  //         "U have not verify your account, Please verify your account to enjoy our web apps features",
+  //       duration: 3000,
+  //     });
+  //     return;
+  //   }
+  //   if (!authSelector.id) {
+  //     toast({
+  //       status: "error",
+  //       title: "Cannot share post",
+  //       description: "You have to sign in first in order to enjoy our features",
+  //       duration: 2000,
+  //     });
+  //     return
+  //   }
+  //   setShareButtons(true);
+  // };
+  // const ShareButtonHandlerFalse = () => {
+  //   setShareButtons(false);
+  // };
 
-  const copyLinkBtnHandler = () => {
-    navigator.clipboard.writeText(
-      `http://localhost:3000/detail-post/${postId}`
-    );
+  // const copyLinkBtnHandler = () => {
+  //   navigator.clipboard.writeText(
+  //     `http://localhost:3000/detail-post/${postId}`
+  //   );
 
-    toast({
-      position: "top-right",
-      status: "info",
-      title: "Link copied",
-    });
-  };
+  //   toast({
+  //     position: "top-right",
+  //     status: "info",
+  //     title: "Link copied",
+  //   });
+  // };
 
   const rerouteToProfilePage = () => {
     return router.push("/my-profile");
@@ -479,7 +479,7 @@ const Content = ({
               <Icon
                 boxSize={5}
                 as={FiSend}
-                onClick={ShareButtonHandlerTrue}
+                // onClick={ShareButtonHandlerTrue}
                 sx={{
                   _hover: {
                     cursor: "pointer",
@@ -566,7 +566,7 @@ const Content = ({
               </ModalContent>
             </Container>
           </Modal>
-          {shareButtons ? (
+          {/* {shareButtons ? (
             <HStack mt={2}>
               <FacebookShareButton
                 url={`http://localhost:3000/detail-post/${postId}`}
@@ -602,7 +602,7 @@ const Content = ({
                 />
               </Stack>
             </HStack>
-          ) : null}
+          ) : null} */}
 
           <Stack mt={2.5}>
             <Text ml={-4} fontWeight={"bold"}>

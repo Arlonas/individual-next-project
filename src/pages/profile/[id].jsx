@@ -19,24 +19,13 @@ import api from "../../lib/api";
 import Link from "next/link";
 import { IoHeartOutline, IoHeartDislikeOutline } from "react-icons/io5";
 import { BsGripVertical } from "react-icons/bs";
-const UserProfile = () => {
+import axios from "axios";
+const UserProfile = ({ profileDetail }) => {
   const router = useRouter();
-  const { id } = router.query;
-  const [contentImage, setContent] = useState([]);
-  const [userProfileContent, setUserProfileContent] = useState();
   const [postOrLike, setPostOrLike] = useState(true);
   const [UserLikedPost, setUserLikedPost] = useState([]);
-
-  const fetchContentUser = async () => {
-    try {
-      const res = await api.get(`/profile/${id}`);
-      setContent(res.data.result.Posts);
-      console.log(res.data.result)
-      setUserProfileContent(res.data.result);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  const [userProfileContent, setUserProfileContent] = useState();
+  const { id } = router.query;
   const fetchLikedPostUser = async () => {
     try {
       const res = await api.get(`/profile/posts/likes/${id}`);
@@ -48,7 +37,7 @@ const UserProfile = () => {
     }
   };
   const renderImage = () => {
-    return contentImage?.map((val) => {
+    return profileDetail.Posts?.map((val) => {
       return (
         <GridItem>
           <Link href={`/detail-post/${val.id}`}>
@@ -59,7 +48,7 @@ const UserProfile = () => {
               px={2}
               mb={2}
             >
-              <Image src={val.image_url} />
+              <Image key={val.id.toString()} src={val.image_url} />
             </Box>
           </Link>
         </GridItem>
@@ -90,11 +79,9 @@ const UserProfile = () => {
       );
     });
   };
-  useEffect(() => {
-    if (router.isReady) {
-      fetchContentUser();
-    }
-  }, [router.isReady]);
+  const fetchProfileDetail = () => {
+    setUserProfileContent(profileDetail);
+  };
   return (
     <Center py={6}>
       <Box
@@ -147,7 +134,7 @@ const UserProfile = () => {
               boxSize={5}
               as={BsGripVertical}
               color={"gray.300"}
-              onClick={fetchContentUser}
+              onClick={fetchProfileDetail}
               sx={{
                 _hover: {
                   cursor: "pointer",
@@ -176,6 +163,20 @@ const UserProfile = () => {
       </Box>
     </Center>
   );
+};
+export const getServerSideProps = async (context) => {
+  try {
+    const profileId = context.query.id;
+    const res = await axios.get(`http://localhost:2020/profile/${profileId}`);
+
+    return {
+      props: {
+        profileDetail: res.data.result,
+      },
+    };
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 export default UserProfile;
