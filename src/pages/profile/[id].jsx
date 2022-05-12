@@ -14,74 +14,15 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import api from "../../lib/api";
-import Link from "next/link";
+import { useState } from "react";
 import { IoHeartOutline, IoHeartDislikeOutline } from "react-icons/io5";
 import { BsGripVertical } from "react-icons/bs";
 import axios from "axios";
+import UsersLikes from "../../components/Users Likes";
+import UsersPosts from "../../components/UsersPosts";
 const UserProfile = ({ profileDetail }) => {
   const router = useRouter();
-  const [postOrLike, setPostOrLike] = useState(true);
-  const [UserLikedPost, setUserLikedPost] = useState([]);
-  const [userProfileContent, setUserProfileContent] = useState();
-  const { id } = router.query;
-  const fetchLikedPostUser = async () => {
-    try {
-      const res = await api.get(`/profile/posts/likes/${id}`);
-      // console.log(res.data.result);
-      setUserLikedPost(res.data.result);
-      setPostOrLike(false);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-  const renderImage = () => {
-    return profileDetail.Posts?.map((val) => {
-      return (
-        <GridItem>
-          <Link href={`/detail-post/${val.id}`}>
-            <Box
-              _hover={{
-                cursor: "pointer",
-              }}
-              px={2}
-              mb={2}
-            >
-              <Image key={val.id.toString()} src={val.image_url} />
-            </Box>
-          </Link>
-        </GridItem>
-      );
-    });
-  };
-  const renderLikedImage = () => {
-    return UserLikedPost.map((val) => {
-      return (
-        <GridItem>
-          <Link href={`/detail-post/${val?.Post?.id}`}>
-            <Box
-              _hover={{
-                cursor: "pointer",
-              }}
-              px={2}
-              mb={2}
-            >
-              <Image
-                w={"100%"}
-                h={"200px"}
-                objectFit={"cover"}
-                src={val?.Post?.image_url}
-              />
-            </Box>
-          </Link>
-        </GridItem>
-      );
-    });
-  };
-  const fetchProfileDetail = () => {
-    setUserProfileContent(profileDetail);
-  };
+  const [postOrLike, setPostOrLike] = useState(false);
   return (
     <Center py={6}>
       <Box
@@ -105,14 +46,14 @@ const UserProfile = ({ profileDetail }) => {
             fontWeight={500}
             fontFamily={"body"}
           >
-            {userProfileContent?.username}
+            {profileDetail?.username}
           </Heading>
         </Stack>
 
         <Flex justify={"center"} mt={-12}>
           <Avatar
             size={"xl"}
-            src={userProfileContent?.profile_picture}
+            src={profileDetail?.profile_picture}
             alt={"Author"}
             css={{
               border: "2px solid white",
@@ -125,16 +66,19 @@ const UserProfile = ({ profileDetail }) => {
         </Flex>
         <Box p={6}>
           <Stack spacing={0} align={"center"} mb={5}>
-            <Text fontWeight={500}>{userProfileContent?.full_name}</Text>
-            <Text>{userProfileContent?.email}</Text>
-            <Text color={"gray.500"}>{userProfileContent?.bio}</Text>
+            <Text fontWeight={500}>{profileDetail?.full_name}</Text>
+            <Text>{profileDetail?.email}</Text>
+            <Text color={"gray.500"}>{profileDetail?.bio}</Text>
           </Stack>
           <Stack mx={-6} direction={"row"} justifyContent={"space-around"}>
             <Icon
               boxSize={5}
               as={BsGripVertical}
               color={"gray.300"}
-              onClick={fetchProfileDetail}
+              // anonymous function ini itu untuk biar g keevecute lgsng gitu
+              onClick={() => {
+                setPostOrLike(false);
+              }}
               sx={{
                 _hover: {
                   cursor: "pointer",
@@ -143,9 +87,11 @@ const UserProfile = ({ profileDetail }) => {
             />
             <Icon
               boxSize={5}
-              as={postOrLike ? IoHeartDislikeOutline : IoHeartOutline}
+              as={postOrLike ? IoHeartOutline : IoHeartDislikeOutline}
               color={"gray.300"}
-              onClick={fetchLikedPostUser}
+              onClick={() => {
+                setPostOrLike(true);
+              }}
               sx={{
                 _hover: {
                   cursor: "pointer",
@@ -156,9 +102,9 @@ const UserProfile = ({ profileDetail }) => {
           <Divider />
         </Box>
         {postOrLike ? (
-          <Grid templateColumns="repeat(2, 1fr)">{renderImage()}</Grid>
+          <UsersLikes userId={profileDetail.id} />
         ) : (
-          <Grid templateColumns="repeat(2, 1fr)">{renderLikedImage()}</Grid>
+          <UsersPosts userId={profileDetail.id} />
         )}
       </Box>
     </Center>
