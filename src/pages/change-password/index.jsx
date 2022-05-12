@@ -33,16 +33,16 @@ const ChangePassword = () => {
     },
 
     validationSchema: Yup.object().shape({
-      password: Yup.string().required("This field is required"),
-      // .matches(
-      //   /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
-      //   "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and one special case Character"
-      // ),
-      confirmPassword: Yup.string().required("This field is required"),
-      // .matches(
-      //   /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
-      //   "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and one special case Character"
-      // ),
+      password: Yup.string().required("This field is required")
+      .matches(
+        /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
+        "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and one special case Character"
+      ),
+      confirmPassword: Yup.string().required("This field is required")
+      .matches(
+        /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
+        "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and one special case Character"
+      ),
     }),
 
     validateOnChange: false,
@@ -68,8 +68,8 @@ const ChangePassword = () => {
           duration: 2000,
           position: "top-right",
         });
-        router.push("/signin")
         formik.setSubmitting(false)
+        router.push("/signin")
       } catch (err) {
         console.log(err);
       }

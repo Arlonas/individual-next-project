@@ -59,6 +59,7 @@ import { fetchInitialContent } from "../../redux/actions/fetchInitialContent";
 import { useEffect, useRef, useState } from "react";
 import moment from "moment";
 import { fetchAllContent } from "../../redux/actions/fetchAllContent";
+import ScrollIntoView from "react-scroll-into-view";
 import {
   FacebookShareButton,
   TwitterShareButton,
@@ -77,7 +78,7 @@ const Content = ({
   PassingConfirmDeletePost,
   postId,
   createdAt,
-  index
+  index,
 }) => {
   const authSelector = useSelector((state) => state.auth);
   const {
@@ -121,7 +122,7 @@ const Content = ({
             "U have not verify your account, Please verify your account to enjoy our web apps features",
           duration: 3000,
         });
-        editOnClose()
+        editOnClose();
         return;
       }
       const editPost = {
@@ -147,6 +148,16 @@ const Content = ({
     }),
     validateOnChange: false,
     onSubmit: async (values) => {
+      if (!authSelector.id) {
+        toast({
+          status: "error",
+          title: "Failed to upload content",
+          description:
+            "U have to sign in your account to enjoy our web apps features",
+          duration: 3000,
+        });
+        return;
+      }
       if (!authSelector.isVerified) {
         toast({
           status: "error",
@@ -155,7 +166,7 @@ const Content = ({
             "U have not verify your account, Please verify your account to enjoy our web apps features",
           duration: 3000,
         });
-        commentFormik.setFieldValue("comment", "")
+        commentFormik.setFieldValue("comment", "");
         return;
       }
       if (authSelector.id) {
@@ -252,43 +263,6 @@ const Content = ({
       fetchNextCommentPage();
     }
   }, [commentPage]);
-  // const ShareButtonHandlerTrue = () => {
-  //   if (!authSelector.isVerified) {
-  //     toast({
-  //       status: "error",
-  //       title: "Cannot delete post",
-  //       description:
-  //         "U have not verify your account, Please verify your account to enjoy our web apps features",
-  //       duration: 3000,
-  //     });
-  //     return;
-  //   }
-  //   if (!authSelector.id) {
-  //     toast({
-  //       status: "error",
-  //       title: "Cannot share post",
-  //       description: "You have to sign in first in order to enjoy our features",
-  //       duration: 2000,
-  //     });
-  //     return
-  //   }
-  //   setShareButtons(true);
-  // };
-  // const ShareButtonHandlerFalse = () => {
-  //   setShareButtons(false);
-  // };
-
-  // const copyLinkBtnHandler = () => {
-  //   navigator.clipboard.writeText(
-  //     `http://localhost:3000/detail-post/${postId}`
-  //   );
-
-  //   toast({
-  //     position: "top-right",
-  //     status: "info",
-  //     title: "Link copied",
-  //   });
-  // };
 
   const rerouteToProfilePage = () => {
     return router.push("/my-profile");
@@ -304,6 +278,16 @@ const Content = ({
   };
 
   const createAndDeleteLike = async () => {
+    if (!authSelector.id) {
+      toast({
+        status: "error",
+        title: "Failed to upload content",
+        description:
+          "U have to sign in your account to enjoy our web apps features",
+        duration: 3000,
+      });
+      return;
+    }
     if (!authSelector.isVerified) {
       toast({
         status: "error",
@@ -566,43 +550,6 @@ const Content = ({
               </ModalContent>
             </Container>
           </Modal>
-          {/* {shareButtons ? (
-            <HStack mt={2}>
-              <FacebookShareButton
-                url={`http://localhost:3000/detail-post/${postId}`}
-                quote={`Let's checkout the latest post from ${username}`}
-              >
-                <IconButton
-                  onClick={ShareButtonHandlerFalse}
-                  borderRadius={"50%"}
-                  color={"#385898"}
-                  icon={<Icon size={"15%"} as={FaFacebook} />}
-                />
-              </FacebookShareButton>
-              <TwitterShareButton
-                title={`Let's checkout the latest post from ${username}`}
-                url={`http://localhost:3000/detail-post/${postId}`}
-              >
-                <IconButton
-                  borderRadius={"50%"}
-                  color={"#1da1f2"}
-                  icon={<Icon as={FaTwitter} />}
-                />
-              </TwitterShareButton>
-              <IconButton
-                borderRadius={"50%"}
-                color={"#22c35e"}
-                icon={<Icon as={FaWhatsapp} />}
-              />
-              <Stack>
-                <IconButton
-                  onClick={copyLinkBtnHandler}
-                  borderRadius={"50%"}
-                  icon={<Icon as={FaRegCopy} />}
-                />
-              </Stack>
-            </HStack>
-          ) : null} */}
 
           <Stack mt={2.5}>
             <Text ml={-4} fontWeight={"bold"}>

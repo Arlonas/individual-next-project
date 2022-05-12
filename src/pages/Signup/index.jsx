@@ -40,7 +40,7 @@ export default function Signup() {
       username: "",
       email: "",
       password: "",
-      repeatPassword: ""
+      repeatPassword: "",
     },
 
     validationSchema: Yup.object().shape({
@@ -48,16 +48,18 @@ export default function Signup() {
       email: Yup.string()
         .required("This field is required")
         .email("Field should contain a valid e-mail"),
-      password: Yup.string().required("This field is required"),
-      // .matches(
-      //   /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
-      //   "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and one special case Character"
-      // ),
-      repeatPassword: Yup.string().required("This field is required"),
-      // .matches(
-      //   /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
-      //   "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and one special case Character"
-      // ),
+      password: Yup.string()
+        .required("This field is required")
+        .matches(
+          /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
+          "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and one special case Character"
+        ),
+      repeatPassword: Yup.string()
+        .required("This field is required")
+        .matches(
+          /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
+          "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and one special case Character"
+        ),
     }),
 
     validateOnChange: false,
@@ -77,7 +79,8 @@ export default function Signup() {
         // console.log(res?.statusText)
         toast({
           title: "Account created.",
-          description: "We've created your account for you. Please check your inbox",
+          description:
+            "We've created your account for you. Please check your inbox",
           status: "success",
           duration: 3000,
           position: "top-right",
@@ -87,6 +90,7 @@ export default function Signup() {
         router.push("/signin");
       } catch (err) {
         console.log(err);
+        console.log(err?.response?.data?.message)
         // untuk mengetahui apakah usernamenya taken ato engga
         if (
           err?.response?.data?.message == "Username or Email has been taken"
@@ -128,7 +132,11 @@ export default function Signup() {
           p={8}
         >
           <Stack spacing={4}>
-            <FormControl isInvalid={formik.errors.username} id="username" isRequired>
+            <FormControl
+              isInvalid={formik.errors.username}
+              id="username"
+              isRequired
+            >
               <FormLabel>Username</FormLabel>
               <Input
                 onChange={(event) =>
@@ -137,7 +145,7 @@ export default function Signup() {
               />
               <FormHelperText>{formik.errors.username}</FormHelperText>
             </FormControl>
-            <FormControl isInvalid={formik.errors.email}id="email" isRequired>
+            <FormControl isInvalid={formik.errors.email} id="email" isRequired>
               <FormLabel>Email address</FormLabel>
               <Input
                 type="email"
@@ -147,7 +155,11 @@ export default function Signup() {
               />
               <FormHelperText>{formik.errors.email}</FormHelperText>
             </FormControl>
-            <FormControl isInvalid={formik.errors.password} id="password" isRequired>
+            <FormControl
+              isInvalid={formik.errors.password}
+              id="password"
+              isRequired
+            >
               <FormLabel>Password</FormLabel>
               <InputGroup>
                 <Input

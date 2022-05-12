@@ -56,7 +56,7 @@ const DetailPost = ({ postDetail }) => {
 
   const renderComment = () => {
     // console.log(commentList);
-    return content.Comments?.map((val) => {
+    return postDetail.Comments?.map((val) => {
       return (
         <Box mb={2}>
           <Avatar
@@ -103,7 +103,7 @@ const DetailPost = ({ postDetail }) => {
   };
   const copyLinkBtnHandler = () => {
     navigator.clipboard.writeText(
-      `https://clear-lights-show-118-137-198-86.loca.lt${router.asPath}`
+      `https://orange-crabs-sin-107-155-21-231.loca.lt${router.asPath}`
     );
     toast({
       position: "top-right",
@@ -251,7 +251,7 @@ const DetailPost = ({ postDetail }) => {
           {shareButtons ? (
             <HStack mt={2}>
               <FacebookShareButton
-                url={`https://clear-lights-show-118-137-198-86.loca.lt${router.asPath}`}
+                url={`https://orange-crabs-sin-107-155-21-231.loca.lt${router.asPath}`}
                 quote={`Let's checkout the latest post from ${postDetail.User.username}`}
               >
                 <IconButton
@@ -263,7 +263,7 @@ const DetailPost = ({ postDetail }) => {
               </FacebookShareButton>
               <TwitterShareButton
                 title={`Let's checkout the latest post from ${postDetail.User.username}`}
-                url={`https://clear-lights-show-118-137-198-86.loca.lt${router.asPath}`}
+                url={`https://orange-crabs-sin-107-155-21-231.loca.lt${router.asPath}`}
               >
                 <IconButton
                   onClick={ShareButtonHandlerFalse}
@@ -273,7 +273,7 @@ const DetailPost = ({ postDetail }) => {
                 />
               </TwitterShareButton>
               <WhatsappShareButton
-                url={`https://clear-lights-show-118-137-198-86.loca.lt${router.asPath}`}
+                url={`https://orange-crabs-sin-107-155-21-231.loca.lt${router.asPath}`}
                 quote={`Let's checkout the latest post from ${postDetail.User.username}`}
               >
                 <IconButton
@@ -311,7 +311,12 @@ const DetailPost = ({ postDetail }) => {
 export const getServerSideProps = async (context) => {
   try {
     const postId = context.query.id;
-    const res = await axios.get(`http://localhost:2020/post/${postId}`);
+    const res = await axios.get(`http://localhost:2020/post/${postId}`, {
+      params: {
+        _sortBy: "createdAt",
+        _sortDir: "DESC",
+      },
+    });
 
     return {
       props: {

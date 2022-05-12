@@ -78,6 +78,16 @@ export default function Nav() {
     onSubmit: async (values) => {
       // console.log(selectedFile);
       try {
+        if (!authSelector.id) {
+          toast({
+            status: "error",
+            title: "Failed to upload content",
+            description:
+              "U have to sign in your account to enjoy our web apps features",
+            duration: 3000,
+          });
+          return
+        }
         if (!authSelector.isVerified) {
           toast({
             status: "error",
@@ -97,9 +107,9 @@ export default function Nav() {
             title: "file upload success",
             description: "U have  chose a file",
             duration: 2000,
-            position: "top-right"
+            position: "top-right",
           });
-          return;
+          
         }
         if (!selectedFile) {
           toast({

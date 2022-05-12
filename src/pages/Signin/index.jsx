@@ -46,7 +46,9 @@ export default function SignIn() {
     validateOnChange: false,
     onSubmit: (values) => {
       setTimeout(() => {
-        dispatch(userLogin(values, formik.setSubmitting, router, formik.setFieldError));
+        dispatch(
+          userLogin(values, formik.setSubmitting, router, formik.setFieldError)
+        );
       }, 2000);
     },
   });
@@ -74,7 +76,10 @@ export default function SignIn() {
           p={8}
         >
           <Stack spacing={4}>
-            <FormControl isInvalid={formik.errors.usernameOrEmail} id="usernameOrEmail">
+            <FormControl
+              isInvalid={formik.errors.usernameOrEmail}
+              id="usernameOrEmail"
+            >
               <FormLabel>Username or Email</FormLabel>
               <Input
                 onChange={(event) =>
@@ -110,6 +115,7 @@ export default function SignIn() {
                 justify={"space-between"}
               >
                 <Checkbox>Remember me</Checkbox>
+                {/* <a href="/forgot-password"> */}
                 <Link href={"/forgot-password"}>
                   <Text
                     _hover={{
@@ -121,6 +127,7 @@ export default function SignIn() {
                     Forgot password?
                   </Text>
                 </Link>
+                {/* </a> */}
               </Stack>
               <Button
                 bg={"blue.400"}

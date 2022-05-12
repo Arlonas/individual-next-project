@@ -32,14 +32,14 @@ export const userLogin = (values, setSubmitting, router, setFieldError) => {
         setFieldError("usernameOrEmail", "Wrong username or password");
       }
       if (
-        err?.response?.data?.message == "Wrong username or password"
-      ) {
-        setFieldError("password", "Wrong username or password");
-      }
-      if (
         err?.response?.data?.message == "Wrong email or password"
       ) {
         setFieldError("usernameOrEmail", "Wrong email or password");
+      }
+      if (
+        err?.response?.data?.message == "Wrong username or password"
+      ) {
+        setFieldError("password", "Wrong username or password");
       }
       if (
         err?.response?.data?.message == "Wrong email or password"
